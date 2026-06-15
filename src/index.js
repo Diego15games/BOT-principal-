@@ -43,6 +43,11 @@ const command =
     `./commands/${folder}/${file}`
   );
 
+if (!command.default?.data?.name) {
+  console.log(`Comando inválido: ${file}`);
+  continue;
+}
+
 client.commands.set(
   command.default.data.name,
   command.default
