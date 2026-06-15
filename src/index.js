@@ -69,6 +69,11 @@ for (const file of eventFiles) {
 const event =
 await import(`./events/${file}`);
 
+if (!event.default) {
+  console.log(`Evento inválido: ${file}`);
+  continue;
+}
+
 if (event.default.once) {
 
 client.once(
