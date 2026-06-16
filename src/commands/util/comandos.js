@@ -20,13 +20,13 @@ fs.readdirSync('./src/commands');
 for (const pasta of pastas) {
 
 const arquivos =
-fs.readdirSync("./src/commands/${pasta}")
+fs.readdirSync(`./src/commands/${pasta}`)
 .filter(file => file.endsWith('.js'));
 
 for (const arquivo of arquivos) {
 
 comandos.push(
-"/${arquivo.replace('.js', '')}"
+`/${arquivo.replace('.js', '')}`
 );
 
 }
