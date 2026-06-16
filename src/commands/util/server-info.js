@@ -21,12 +21,12 @@ guild.iconURL()
 .addFields(
 {
 name: '👥 Membros',
-value: "${guild.memberCount}",
+value: `${guild.memberCount}`,
 inline: true
 },
 {
 name: '📅 Criado em',
-value: "<t:${Math.floor(guild.createdTimestamp / 1000)}:D>",
+value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:D>`,
 inline: true
 },
 {
