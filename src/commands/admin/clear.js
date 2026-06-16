@@ -42,7 +42,7 @@ true
 
 await interaction.reply({
 content:
-"✅ ${quantidade} mensagens apagadas.",
+`✅ ${quantidade} mensagens apagadas.`,
 ephemeral: true
 });
 
