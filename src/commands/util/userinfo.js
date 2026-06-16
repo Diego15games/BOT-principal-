@@ -33,7 +33,7 @@ member.roles.cache
 
 const embed =
 new EmbedBuilder()
-.setTitle("Informações de ${user.username}")
+.setTitle(`Informações de ${user.username}`)
 .setThumbnail(
 user.displayAvatarURL()
 )
@@ -44,11 +44,11 @@ value: user.id
 },
 {
 name: '📅 Conta criada',
-value: "<t:${Math.floor(user.createdTimestamp / 1000)}:D>"
+value: `<t:${Math.floor(user.createdTimestamp / 1000)}:D>`
 },
 {
 name: '📥 Entrou no servidor',
-value: "<t:${Math.floor(member.joinedTimestamp / 1000)}:D>"
+value: `<t:${Math.floor(member.joinedTimestamp / 1000)}:D>`
 },
 {
 name: '🎭 Cargos',
