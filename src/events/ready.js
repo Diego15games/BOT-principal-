@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 export default {
-name: 'ready',
+name: 'clientReady',
 once: true,
 
 async execute(client) {
@@ -18,14 +18,13 @@ fs.readdirSync('./src/commands');
 for (const folder of folders) {
 
 const files =
-fs.readdirSync("./src/commands/${folder}")
+fs.readdirSync(`./src/commands/${folder}`)
 .filter(file => file.endsWith('.js'));
-
 for (const file of files) {
 
 const command =
 await import(
-"../commands/${folder}/${file}"
+`../commands/${folder}/${file}`
 );
 
 if (!command.default?.data) continue;
@@ -43,7 +42,7 @@ commands
 );
 
 console.log(
-"✅ ${commands.length} comandos registrados."
+`✅ ${commands.length} comandos registrados.`
 );
 
 }
