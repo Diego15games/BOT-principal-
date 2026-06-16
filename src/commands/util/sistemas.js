@@ -17,7 +17,7 @@ fs.readdirSync('./src/commands');
 
 const sistemas =
 pastas.map(
-pasta => "⚙️ ${pasta}"
+pasta => `⚙️ ${pasta}`
 );
 
 const embed =
