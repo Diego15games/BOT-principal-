@@ -7,7 +7,7 @@ once: true,
 async execute(client) {
 
 console.log(
-"✅ Online como ${client.user.tag}"
+`✅ Online como ${client.user.tag}`
 );
 
 const commands = [];
