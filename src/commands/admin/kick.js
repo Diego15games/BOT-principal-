@@ -55,7 +55,7 @@ motivo
 
 await interaction.reply({
 content:
-"✅ ${user.tag} foi expulso.\nMotivo: ${motivo}"
+`✅ ${user.tag} foi expulso.\nMotivo: ${motivo}`
 });
 
 } catch {
