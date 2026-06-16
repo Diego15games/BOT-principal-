@@ -35,6 +35,7 @@ ephemeral: true
 });
 }
 
+const apagadas =
 await interaction.channel.bulkDelete(
 quantidade,
 true
@@ -42,7 +43,7 @@ true
 
 await interaction.reply({
 content:
-`✅ ${quantidade} mensagens apagadas.`,
+"✅ ${apagadas.size} mensagens apagadas.",
 ephemeral: true
 });
 
