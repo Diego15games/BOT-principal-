@@ -23,7 +23,7 @@ interaction.options.getUser(
 const embed =
 new EmbedBuilder()
 .setTitle(
-"Avatar de ${user.username}"
+`Avatar de ${user.username}`
 )
 .setImage(
 user.displayAvatarURL({
