@@ -5,6 +5,8 @@ GatewayIntentBits,
 Partials
 } from 'discord.js';
 
+import './systems/database.js';
+
 import fs from 'fs';
 import path from 'path';
 
