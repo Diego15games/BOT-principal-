@@ -48,14 +48,36 @@ await criarGranaPendente(
   valor
 );
 
+try {
+
+  await usuario.send({
+    embeds: [
+      new EmbedBuilder()
+        .setColor(0x57f287)
+        .setTitle('💰 Dinheiro Disponível')
+        .setDescription(
+          `A staff liberou **R$ ${valor.toLocaleString('pt-BR')}** para você.\n\nUse o comando **/receber** para sacar seu dinheiro.`
+        )
+    ]
+  });
+
+} catch {
+
+  console.log(
+    `Não foi possível enviar DM para ${usuario.tag}`
+  );
+
+}
+
 return interaction.reply({
   embeds: [
     new EmbedBuilder()
       .setColor(0x57f287)
       .setDescription(
-        `✅ ${usuario} pode sacar **R$ ${valor.toLocaleString('pt-BR')}** usando /receber.`
+        `✅ Dinheiro liberado para ${usuario}. O jogador foi notificado no privado.`
       )
-  ]
+  ],
+  ephemeral: true
 });
 
 }
