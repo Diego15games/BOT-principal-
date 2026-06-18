@@ -4,10 +4,14 @@ PermissionFlagsBits,
 EmbedBuilder
 } from 'discord.js';
 
+import {
+criarGranaPendente
+} from '../../systems/economia.js';
+
 export default {
 data: new SlashCommandBuilder()
 .setName('setgrana')
-.setDescription('Enviar dinheiro para um jogador')
+.setDescription('Liberar dinheiro para um jogador')
 .addUserOption(option =>
 option
 .setName('usuario')
@@ -46,20 +50,17 @@ ephemeral: true
 
 }
 
-if (!global.granaPendente) {
-global.granaPendente = {};
-}
-
-global.granaPendente[
-usuario.id
-] = valor;
+await criarGranaPendente(
+usuario.id,
+valor
+);
 
 return interaction.reply({
 embeds: [
 new EmbedBuilder()
 .setColor(0x57f287)
 .setDescription(
-"✅ ${usuario} recebeu uma autorização para sacar **R$ ${valor.toLocaleString('pt-BR')}** usando \"/receber`.`
+"✅ ${usuario} pode sacar **R$ ${valor.toLocaleString('pt-BR')}** usando \"/receber`.`
 )
 ]
 });
