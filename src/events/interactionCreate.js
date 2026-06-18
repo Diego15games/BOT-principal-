@@ -342,6 +342,19 @@ return;
 // SLASH COMMANDS
 // =========================
 
+if (
+interaction.isChatInputCommand() &&
+!interaction.guild
+) {
+
+return interaction.reply({
+content:
+'❌ Os comandos só podem ser usados dentro de servidores.',
+ephemeral: true
+});
+
+}
+
 if (!interaction.isChatInputCommand()) return;
 
 const command =
