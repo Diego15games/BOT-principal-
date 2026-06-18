@@ -4,22 +4,24 @@ EmbedBuilder
 } from 'discord.js';
 
 import {
+pegarGranaPendente,
+removerGranaPendente,
 addMoney
 } from '../../systems/economia.js';
 
 export default {
 data: new SlashCommandBuilder()
 .setName('receber')
-.setDescription('Receber dinheiro enviado pela staff'),
+.setDescription('Receber dinheiro liberado pela staff'),
 
 cooldown: 3,
 
 async execute(interaction) {
 
 const valor =
-global.granaPendente?.[
+await pegarGranaPendente(
 interaction.user.id
-];
+);
 
 if (!valor) {
 
@@ -41,9 +43,9 @@ interaction.user.id,
 valor
 );
 
-delete global.granaPendente[
+await removerGranaPendente(
 interaction.user.id
-];
+);
 
 return interaction.reply({
 embeds: [
