@@ -40,7 +40,7 @@ const user =
 ranking[i];
 
 texto +=
-"**${i + 1}º** <@${user.userId}> - R$ ${( user.money || 0 ).toLocaleString('pt-BR')}\n";
+'**${i + 1}º** <@${user.userId}> - R$ ${( user.money || 0 ).toLocaleString('pt-BR')}\n';
 
 }
 
