@@ -4,41 +4,55 @@ EmbedBuilder
 } from 'discord.js';
 
 import {
-claimDaily
+addMoney
 } from '../../systems/economia.js';
 
 export default {
 data: new SlashCommandBuilder()
-.setName('daily')
-.setDescription('Resgatar recompensa diária'),
+.setName('receber')
+.setDescription('Receber dinheiro enviado pela staff'),
 
 cooldown: 3,
 
 async execute(interaction) {
 
-const success = claimDaily(interaction.user.id);
+const valor =
+global.granaPendente?.[
+interaction.user.id
+];
 
-if (!success) {
-  return interaction.reply({
-    embeds: [
-      new EmbedBuilder()
-        .setColor(0xed4245)
-        .setDescription(
-          '⏳ Você já resgatou seu daily hoje.'
-        )
-    ],
-    ephemeral: true
-  });
-}
+if (!valor) {
 
 return interaction.reply({
-  embeds: [
-    new EmbedBuilder()
-      .setColor(0x57f287)
-      .setDescription(
-        '✅ Você recebeu **R$ 1.000**.'
-      )
-  ]
+embeds: [
+new EmbedBuilder()
+.setColor(0xed4245)
+.setDescription(
+'❌ Você não possui dinheiro pendente.'
+)
+],
+ephemeral: true
+});
+
+}
+
+await addMoney(
+interaction.user.id,
+valor
+);
+
+delete global.granaPendente[
+interaction.user.id
+];
+
+return interaction.reply({
+embeds: [
+new EmbedBuilder()
+.setColor(0x57f287)
+.setDescription(
+"✅ Você recebeu **R$ ${valor.toLocaleString('pt-BR')}**."
+)
+]
 });
 
 }
