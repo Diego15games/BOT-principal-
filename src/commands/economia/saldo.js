@@ -26,7 +26,7 @@ new EmbedBuilder()
 .setColor(0x57f287)
 .setTitle('💰 Saldo')
 .setDescription(
-"Você possui **R$ ${saldo.toLocaleString('pt-BR')}**"
+'Você possui **R$ ${saldo.toLocaleString('pt-BR')}**'
 );
 
 return interaction.reply({
