@@ -1,110 +1,152 @@
-import fs from 'fs';
+import { db } from './database.js';
 
-const PATH = './database/economia.json';
+const collection =
+db.collection('economia');
 
-function load() {
-try {
-return JSON.parse(fs.readFileSync(PATH, 'utf8'));
-} catch {
-return {};
-}
-}
+export async function getMoney(userId) {
 
-function save(data) {
-fs.writeFileSync(PATH, JSON.stringify(data, null, 2));
-}
+const user =
+await collection.findOne({
+userId
+});
 
-export function getMoney(userId) {
-const data = load();
-return data[userId]?.money || 0;
+return user?.money || 0;
+
 }
 
-export function addMoney(userId, amount) {
-const data = load();
+export async function addMoney(
+userId,
+amount
+) {
 
-if (!data[userId]) {
-data[userId] = {
-money: 0,
-lastDaily: 0
-};
+await collection.updateOne(
+{ userId },
+{
+$inc: {
+money: amount
+}
+},
+{
+upsert: true
+}
+);
+
+const user =
+await collection.findOne({
+userId
+});
+
+return user.money;
+
 }
 
-data[userId].money += amount;
+export async function removeMoney(
+userId,
+amount
+) {
 
-save(data);
+const saldo =
+await getMoney(userId);
 
-return data[userId].money;
+const novoSaldo =
+Math.max(
+0,
+saldo - amount
+);
+
+await collection.updateOne(
+{ userId },
+{
+$set: {
+money: novoSaldo
+}
+},
+{
+upsert: true
+}
+);
+
+return novoSaldo;
+
 }
 
-export function removeMoney(userId, amount) {
-const data = load();
+export async function transferMoney(
+fromId,
+toId,
+amount
+) {
 
-if (!data[userId]) return 0;
+const saldo =
+await getMoney(fromId);
 
-data[userId].money -= amount;
-
-if (data[userId].money < 0) {
-data[userId].money = 0;
-}
-
-save(data);
-
-return data[userId].money;
-}
-
-export function transferMoney(fromId, toId, amount) {
-const data = load();
-
-if (!data[fromId]) return false;
-
-if ((data[fromId].money || 0) < amount) {
+if (saldo < amount) {
 return false;
 }
 
-if (!data[toId]) {
-data[toId] = {
-money: 0,
-lastDaily: 0
-};
-}
+await removeMoney(
+fromId,
+amount
+);
 
-data[fromId].money -= amount;
-data[toId].money += amount;
-
-save(data);
+await addMoney(
+toId,
+amount
+);
 
 return true;
+
 }
 
-export function claimDaily(userId) {
-const data = load();
+export async function claimDaily(
+userId
+) {
 
-if (!data[userId]) {
-data[userId] = {
-money: 0,
-lastDaily: 0
-};
-}
+const user =
+await collection.findOne({
+userId
+});
 
-const now = Date.now();
-const cooldown = 24 * 60 * 60 * 1000;
+const now =
+Date.now();
 
-if (now - data[userId].lastDaily < cooldown) {
+const cooldown =
+24 * 60 * 60 * 1000;
+
+if (
+user?.lastDaily &&
+now - user.lastDaily <
+cooldown
+) {
 return false;
 }
 
-data[userId].lastDaily = now;
-data[userId].money += 1000;
-
-save(data);
+await collection.updateOne(
+{ userId },
+{
+$set: {
+lastDaily: now
+},
+$inc: {
+money: 1000
+}
+},
+{
+upsert: true
+}
+);
 
 return true;
+
 }
 
-export function getRanking() {
-const data = load();
+export async function getRanking() {
 
-return Object.entries(data)
-.sort((a, b) => b[1].money - a[1].money)
-.slice(0, 10);
+return await collection
+.find()
+.sort({
+money: -1
+})
+.limit(10)
+.toArray();
+
 }
