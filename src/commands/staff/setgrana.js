@@ -49,7 +49,7 @@ await criarGranaPendente(
 );
 
 const CANAL_COMANDOS =
-'SEU_ID_DO_CANAL';
+'1516983136486035648';
 
 try {
 
