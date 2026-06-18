@@ -16,30 +16,43 @@ cooldown: 5,
 
 async execute(interaction) {
 
-const ranking = getRanking();
+const ranking =
+await getRanking();
 
 if (!ranking.length) {
-  return interaction.reply({
-    content: '❌ Nenhum dado encontrado.'
-  });
+
+return interaction.reply({
+content:
+'❌ Nenhum dado encontrado.'
+});
+
 }
 
 let texto = '';
 
-for (let i = 0; i < ranking.length; i++) {
+for (
+let i = 0;
+i < ranking.length;
+i++
+) {
 
-  const [userId, dados] = ranking[i];
+const user =
+ranking[i];
 
-  texto += `**${i + 1}º** <@${userId}> - R$ ${dados.money.toLocaleString('pt-BR')}\n`;
+texto +=
+"**${i + 1}º** <@${user.userId}> - R$ ${( user.money || 0 ).toLocaleString('pt-BR')}\n";
+
 }
 
 return interaction.reply({
-  embeds: [
-    new EmbedBuilder()
-      .setColor(0xf1c40f)
-      .setTitle('🏆 Ranking Econômico')
-      .setDescription(texto)
-  ]
+embeds: [
+new EmbedBuilder()
+.setColor(0xf1c40f)
+.setTitle(
+'🏆 Ranking Econômico'
+)
+.setDescription(texto)
+]
 });
 
 }
