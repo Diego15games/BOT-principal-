@@ -60,7 +60,7 @@ embeds: [
 new EmbedBuilder()
 .setColor(0x57f287)
 .setDescription(
-"✅ ${usuario} pode sacar **R$ ${valor.toLocaleString('pt-BR')}** usando \"/receber`.`
+'✅ ${usuario} pode sacar **R$ ${valor.toLocaleString('pt-BR')}** usando \'/receber`.`
 )
 ]
 });
