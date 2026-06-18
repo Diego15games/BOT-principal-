@@ -31,38 +31,31 @@ PermissionFlagsBits.Administrator
 async execute(interaction) {
 
 const usuario =
-interaction.options.getUser(
-'usuario'
-);
+  interaction.options.getUser('usuario');
 
 const valor =
-interaction.options.getInteger(
-'valor'
-);
+  interaction.options.getInteger('valor');
 
 if (valor <= 0) {
-
-return interaction.reply({
-content:
-'❌ Valor inválido.',
-ephemeral: true
-});
-
+  return interaction.reply({
+    content: '❌ Valor inválido.',
+    ephemeral: true
+  });
 }
 
 await criarGranaPendente(
-usuario.id,
-valor
+  usuario.id,
+  valor
 );
 
 return interaction.reply({
-embeds: [
-new EmbedBuilder()
-.setColor(0x57f287)
-.setDescription(
-'✅ ${usuario} pode sacar **R$ ${valor.toLocaleString('pt-BR')}** usando \'/receber`.`
-)
-]
+  embeds: [
+    new EmbedBuilder()
+      .setColor(0x57f287)
+      .setDescription(
+        `✅ ${usuario} pode sacar **R$ ${valor.toLocaleString('pt-BR')}** usando /receber.`
+      )
+  ]
 });
 
 }
