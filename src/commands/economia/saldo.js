@@ -16,17 +16,21 @@ cooldown: 3,
 
 async execute(interaction) {
 
-const saldo = getMoney(interaction.user.id);
+const saldo =
+await getMoney(
+interaction.user.id
+);
 
-const embed = new EmbedBuilder()
-  .setColor(0x57f287)
-  .setTitle('💰 Saldo')
-  .setDescription(
-    `Você possui **R$ ${saldo.toLocaleString('pt-BR')}**`
-  );
+const embed =
+new EmbedBuilder()
+.setColor(0x57f287)
+.setTitle('💰 Saldo')
+.setDescription(
+"Você possui **R$ ${saldo.toLocaleString('pt-BR')}**"
+);
 
 return interaction.reply({
-  embeds: [embed]
+embeds: [embed]
 });
 
 }
