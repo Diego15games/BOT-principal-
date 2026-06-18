@@ -48,24 +48,29 @@ await criarGranaPendente(
   valor
 );
 
+const CANAL_COMANDOS =
+'SEU_ID_DO_CANAL';
+
 try {
 
-  await usuario.send({
-    embeds: [
-      new EmbedBuilder()
-        .setColor(0x57f287)
-        .setTitle('💰 Dinheiro Disponível')
-        .setDescription(
-          `A staff liberou **R$ ${valor.toLocaleString('pt-BR')}** para você.\n\nUse o comando **/receber** para sacar seu dinheiro.`
-        )
-    ]
-  });
+await usuario.send({
+embeds: [
+new EmbedBuilder()
+.setColor(0x57f287)
+.setTitle('💰 Dinheiro Disponível')
+.setDescription(
+`A staff liberou R$ ${valor.toLocaleString('pt-BR')} para você.
+
+Use o comando /receber no canal <#${CANAL_COMANDOS}> para sacar seu dinheiro.`
+)
+]
+});
 
 } catch {
 
-  console.log(
-    `Não foi possível enviar DM para ${usuario.tag}`
-  );
+console.log(
+"Não foi possível enviar DM para ${usuario.tag}"
+);
 
 }
 
