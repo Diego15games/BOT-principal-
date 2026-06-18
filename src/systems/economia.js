@@ -3,7 +3,9 @@ import { db } from './database.js';
 const collection =
 db.collection('economia');
 
-export async function getMoney(userId) {
+export async function getMoney(
+userId
+) {
 
 const user =
 await collection.findOne({
@@ -36,7 +38,7 @@ await collection.findOne({
 userId
 });
 
-return user.money;
+return user?.money || 0;
 
 }
 
@@ -46,7 +48,9 @@ amount
 ) {
 
 const saldo =
-await getMoney(userId);
+await getMoney(
+userId
+);
 
 const novoSaldo =
 Math.max(
@@ -77,7 +81,9 @@ amount
 ) {
 
 const saldo =
-await getMoney(fromId);
+await getMoney(
+fromId
+);
 
 if (saldo < amount) {
 return false;
@@ -97,48 +103,6 @@ return true;
 
 }
 
-export async function claimDaily(
-userId
-) {
-
-const user =
-await collection.findOne({
-userId
-});
-
-const now =
-Date.now();
-
-const cooldown =
-24 * 60 * 60 * 1000;
-
-if (
-user?.lastDaily &&
-now - user.lastDaily <
-cooldown
-) {
-return false;
-}
-
-await collection.updateOne(
-{ userId },
-{
-$set: {
-lastDaily: now
-},
-$inc: {
-money: 1000
-}
-},
-{
-upsert: true
-}
-);
-
-return true;
-
-}
-
 export async function getRanking() {
 
 return await collection
@@ -150,3 +114,72 @@ money: -1
 .toArray();
 
 }
+
+export async function criarGranaPendente(
+userId,
+valor
+) {
+
+await collection.updateOne(
+{ userId },
+{
+$set: {
+granaPendente: valor
+}
+},
+{
+upsert: true
+}
+);
+
+}
+
+export async function pegarGranaPendente(
+userId
+) {
+
+const user =
+await collection.findOne({
+userId
+});
+
+return user?.granaPendente || 0;
+
+}
+
+export async function removerGranaPendente(
+userId
+) {
+
+await collection.updateOne(
+{ userId },
+{
+$unset: {
+granaPendente: ''
+}
+}
+);
+
+}
+
+export async function setMoney(
+userId,
+valor
+) {
+
+await collection.updateOne(
+{ userId },
+{
+$set: {
+money: valor
+}
+},
+{
+upsert: true
+}
+);
+
+return valor;
+
+}
+};
