@@ -52,7 +52,7 @@ embeds: [
 new EmbedBuilder()
 .setColor(0x57f287)
 .setDescription(
-"✅ Você recebeu **R$ ${valor.toLocaleString('pt-BR')}**."
+`✅ Você recebeu **R$ ${valor.toLocaleString('pt-BR')}**.`
 )
 ]
 });
