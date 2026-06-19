@@ -160,25 +160,4 @@ granaPendente: ''
 }
 );
 
-}
-
-export async function setMoney(
-userId,
-valor
-) {
-
-await collection.updateOne(
-{ userId },
-{
-$set: {
-money: valor
-}
-},
-{
-upsert: true
-}
-);
-
-return valor;
-
-}
+  }
