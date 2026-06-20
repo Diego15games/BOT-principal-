@@ -57,7 +57,7 @@ new EmbedBuilder()
 .setColor(0xed4245)
 .setTitle('⚠ Advertência')
 .setDescription(
-"Você recebeu uma advertência em **${interaction.guild.name}**."
+`Você recebeu uma advertência em **${interaction.guild.name}**.`
 )
 .addFields(
 {
@@ -66,7 +66,7 @@ value: motivo
 },
 {
 name: 'Total de Advertências',
-value: "${dados.advertencias}"
+value: `${dados.advertencias}`
 }
 )
 ]
@@ -80,7 +80,7 @@ new EmbedBuilder()
 .setColor(0xed4245)
 .setTitle('⚠ Advertência Aplicada')
 .setDescription(
-"${usuario} recebeu uma advertência."
+`${usuario} recebeu uma advertência.`
 )
 .addFields(
 {
@@ -89,7 +89,7 @@ value: motivo
 },
 {
 name: 'Total de Advertências',
-value: "${dados.advertencias}"
+value: `${dados.advertencias}`
 }
 )
 ],
