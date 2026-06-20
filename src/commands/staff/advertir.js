@@ -43,8 +43,9 @@ interaction.options.getString(
 );
 
 const dados =
-await addWarning(
-usuario.id
+addWarning(
+usuario.id,
+motivo
 );
 
 try {
@@ -86,7 +87,7 @@ name: 'Motivo',
 value: motivo
 },
 {
-name: 'Total',
+name: 'Total de Advertências',
 value: `${dados.advertencias}`
 }
 )
