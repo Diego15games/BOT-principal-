@@ -147,3 +147,34 @@ save(data);
 return data[userId];
 
 }
+
+export function removeWarning(
+userId
+) {
+
+const data = load();
+
+if (!data[userId]) {
+return null;
+}
+
+if (
+data[userId].advertencias > 0
+) {
+
+data[userId].advertencias--;
+
+if (
+data[userId].historico &&
+data[userId].historico.length > 0
+) {
+data[userId].historico.pop();
+}
+
+save(data);
+
+}
+
+return data[userId];
+
+}
