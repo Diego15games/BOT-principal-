@@ -5,10 +5,7 @@ const PATH = './database/staff.json';
 function load() {
 try {
 return JSON.parse(
-fs.readFileSync(
-PATH,
-'utf8'
-)
+fs.readFileSync(PATH, 'utf8')
 );
 } catch {
 return {};
@@ -18,11 +15,7 @@ return {};
 function save(data) {
 fs.writeFileSync(
 PATH,
-JSON.stringify(
-data,
-null,
-2
-)
+JSON.stringify(data, null, 2)
 );
 }
 
@@ -84,9 +77,7 @@ if (!data[userId]) return;
 
 data[userId].pontos -= amount;
 
-if (
-data[userId].pontos < 0
-) {
+if (data[userId].pontos < 0) {
 data[userId].pontos = 0;
 }
 
@@ -98,7 +89,8 @@ return data[userId];
 
 export function addWarning(
 userId,
-motivo = 'Não informado'
+motivo = 'Não informado',
+staffId = 'Desconhecido'
 ) {
 
 const data = load();
@@ -118,9 +110,9 @@ data[userId].advertencias++;
 
 data[userId].historico.push({
 motivo,
+staffId,
 data:
-new Date()
-.toLocaleString(
+new Date().toLocaleString(
 'pt-BR'
 )
 });
