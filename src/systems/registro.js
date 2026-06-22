@@ -1,45 +1,94 @@
-import fs from 'fs';
+import { db } from './database.js';
 
-const PATH = './database/registros.json';
+const registros =
+db.collection('registros');
 
-function load() {
-try {
-return JSON.parse(fs.readFileSync(PATH, 'utf8'));
-} catch {
-return {};
+const config =
+db.collection('registroConfig');
+
+export async function criarRegistro(
+userId,
+dados
+) {
+
+await registros.updateOne(
+{
+userId
+},
+{
+$set: {
+...dados,
+registrado: true
 }
+},
+{
+upsert: true
 }
+);
 
-function save(data) {
-fs.writeFileSync(PATH, JSON.stringify(data, null, 2));
-}
-
-export function registrar(userId, nick) {
-const data = load();
-
-data[userId] = {
-nick,
-registradoEm: Date.now()
-};
-
-save(data);
-
-return data[userId];
-}
-
-export function verificarRegistro(userId) {
-const data = load();
-return data[userId] || null;
 }
 
-export function removerRegistro(userId) {
-const data = load();
+export async function atualizarRegistro(
+userId,
+dados
+) {
 
-if (!data[userId]) return false;
-
-delete data[userId];
-
-save(data);
-
-return true;
+await registros.updateOne(
+{
+userId
+},
+{
+$set: dados
 }
+);
+
+}
+
+export async function pegarRegistro(
+userId
+) {
+
+return await registros.findOne({
+userId
+});
+
+}
+
+export async function estaRegistrado(
+userId
+) {
+
+const user =
+await registros.findOne({
+userId
+});
+
+return !!user;
+
+}
+
+export async function salvarConfig(
+dados
+) {
+
+await config.updateOne(
+{
+id: 'registro'
+},
+{
+$set: dados
+},
+{
+upsert: true
+}
+);
+
+}
+
+export async function pegarConfig() {
+
+return await config.findOne({
+id: 'registro'
+});
+
+  }
