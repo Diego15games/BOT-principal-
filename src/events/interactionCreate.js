@@ -13,6 +13,12 @@ ButtonStyle
 
 import fs from 'fs';
 
+import {
+criarRegistro,
+estaRegistrado,
+pegarConfig
+} from '../systems/registro.js';
+
 export default {
 name: 'interactionCreate',
 
@@ -336,6 +342,122 @@ interaction.channel.delete()
 }, 3000);
 
 return;
+}
+
+// =========================
+// BOTÃO REGISTRAR
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId ===
+'registro_criar'
+) {
+
+const registrado =
+await estaRegistrado(
+interaction.user.id
+);
+
+if (registrado) {
+
+return interaction.reply({
+content:
+'❌ Você já está registrado.',
+ephemeral: true
+});
+
+}
+
+const modal =
+new ModalBuilder()
+.setCustomId(
+'modal_registro'
+)
+.setTitle(
+'Sistema de Registro'
+);
+
+const nome =
+new TextInputBuilder()
+.setCustomId('nome')
+.setLabel('Nome')
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+const nick =
+new TextInputBuilder()
+.setCustomId('nick')
+.setLabel('Nick')
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+const nascimento =
+new TextInputBuilder()
+.setCustomId(
+'nascimento'
+)
+.setLabel(
+'Data de nascimento (DD/MM/AAAA)'
+)
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+const sexualidade =
+new TextInputBuilder()
+.setCustomId(
+'sexualidade'
+)
+.setLabel(
+'Sexualidade'
+)
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+const plataforma =
+new TextInputBuilder()
+.setCustomId(
+'plataforma'
+)
+.setLabel(
+'Mobile / PC / Ambos'
+)
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+modal.addComponents(
+
+new ActionRowBuilder()
+.addComponents(nome),
+
+new ActionRowBuilder()
+.addComponents(nick),
+
+new ActionRowBuilder()
+.addComponents(nascimento),
+
+new ActionRowBuilder()
+.addComponents(sexualidade),
+
+new ActionRowBuilder()
+.addComponents(plataforma)
+
+);
+
+return interaction.showModal(
+modal
+);
+
 }
 
 // =========================
