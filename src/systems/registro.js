@@ -6,6 +6,9 @@ db.collection('registros');
 const config =
 db.collection('registroConfig');
 
+const pendentes =
+db.collection('registroPendente');
+
 export async function criarRegistro(
 userId,
 dados
@@ -89,6 +92,45 @@ export async function pegarConfig() {
 
 return await config.findOne({
 id: 'registro'
+});
+
+}
+
+export async function salvarRegistroPendente(
+userId,
+dados
+) {
+
+await pendentes.updateOne(
+{
+userId
+},
+{
+$set: dados
+},
+{
+upsert: true
+}
+);
+
+}
+
+export async function pegarRegistroPendente(
+userId
+) {
+
+return await pendentes.findOne({
+userId
+});
+
+}
+
+export async function removerRegistroPendente(
+userId
+) {
+
+await pendentes.deleteOne({
+userId
 });
 
 }
