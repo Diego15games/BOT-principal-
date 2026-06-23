@@ -15,6 +15,8 @@ import fs from 'fs';
 
 import {
 criarRegistro,
+atualizarRegistro,
+pegarRegistro,
 estaRegistrado,
 pegarConfig
 } from '../systems/registro.js';
