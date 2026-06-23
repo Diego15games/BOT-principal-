@@ -18,7 +18,10 @@ criarRegistro,
 atualizarRegistro,
 pegarRegistro,
 estaRegistrado,
-pegarConfig
+pegarConfig,
+salvarRegistroPendente,
+pegarRegistroPendente,
+removerRegistroPendente
 } from '../systems/registro.js';
 
 export default {
