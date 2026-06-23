@@ -91,4 +91,4 @@ return await config.findOne({
 id: 'registro'
 });
 
-  }
+}
