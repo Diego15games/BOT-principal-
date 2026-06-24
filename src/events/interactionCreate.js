@@ -854,8 +854,6 @@ try {
         '❌ Erro ao executar comando.',
       ephemeral: true
     }).catch(() => {});
-  }
-}
 
 }
 };
