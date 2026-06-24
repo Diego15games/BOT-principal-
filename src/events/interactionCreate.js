@@ -349,12 +349,6 @@ interaction.channel.delete()
 return;
 }
 
-// 
-}
-
-const modal =
-new Mod
-
 //
 // =========================
 // BOTÃO REGISTRAR
