@@ -469,7 +469,61 @@ modal
 // ENVIAR REGISTRO
 // =========================
 
-  
+  if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'modal_registro'
+) {
+
+const nome =
+interaction.fields.getTextInputValue('nome');
+
+const nick =
+interaction.fields.getTextInputValue('nick');
+
+const nascimento =
+interaction.fields.getTextInputValue('nascimento');
+
+const sexualidade =
+interaction.fields.getTextInputValue('sexualidade');
+
+const plataforma =
+interaction.fields.getTextInputValue('plataforma');
+
+await salvarRegistroPendente(
+interaction.user.id,
+{
+nome,
+nick,
+nascimento,
+sexualidade,
+plataforma
+}
+);
+
+const row =
+new ActionRowBuilder()
+.addComponents(
+new ButtonBuilder()
+.setCustomId('confirmar_registro')
+.setLabel('☑️ Confirmo que sou humano')
+.setStyle(ButtonStyle.Success)
+);
+
+return interaction.reply({
+embeds: [
+new EmbedBuilder()
+.setColor(0x57f287)
+.setTitle('Confirmar Registro')
+.setDescription(
+'Clique no botão abaixo para finalizar seu registro.'
+)
+],
+components: [row],
+ephemeral: true
+});
+
+}
 
 // =========================
 // SALVAR ATUALIZAÇÃO
