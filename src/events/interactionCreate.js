@@ -349,9 +349,17 @@ interaction.channel.delete()
 return;
 }
 
+// 
+}
+
+const modal =
+new Mod
+
+//
 // =========================
 // BOTÃO REGISTRAR
 // =========================
+//
 
 if (
 interaction.isButton() &&
@@ -403,9 +411,7 @@ TextInputStyle.Short
 
 const nascimento =
 new TextInputBuilder()
-.setCustomId(
-'nascimento'
-)
+.setCustomId('nascimento')
 .setLabel(
 'Data de nascimento (DD/MM/AAAA)'
 )
@@ -416,12 +422,8 @@ TextInputStyle.Short
 
 const sexualidade =
 new TextInputBuilder()
-.setCustomId(
-'sexualidade'
-)
-.setLabel(
-'Sexualidade'
-)
+.setCustomId('sexualidade')
+.setLabel('Sexualidade')
 .setStyle(
 TextInputStyle.Short
 )
@@ -429,19 +431,14 @@ TextInputStyle.Short
 
 const plataforma =
 new TextInputBuilder()
-.setCustomId(
-'plataforma'
-)
-.setLabel(
-'Mobile / PC / Ambos'
-)
+.setCustomId('plataforma')
+.setLabel('Mobile / PC / Ambos')
 .setStyle(
 TextInputStyle.Short
 )
 .setRequired(true);
 
 modal.addComponents(
-
 new ActionRowBuilder()
 .addComponents(nome),
 
@@ -456,7 +453,6 @@ new ActionRowBuilder()
 
 new ActionRowBuilder()
 .addComponents(plataforma)
-
 );
 
 return interaction.showModal(
@@ -465,11 +461,13 @@ modal
 
 }
 
+//
 // =========================
 // ENVIAR REGISTRO
 // =========================
+//
 
-  if (
+if (
 interaction.isModalSubmit() &&
 interaction.customId ===
 'modal_registro'
@@ -505,16 +503,24 @@ const row =
 new ActionRowBuilder()
 .addComponents(
 new ButtonBuilder()
-.setCustomId('confirmar_registro')
-.setLabel('☑️ Confirmo que sou humano')
-.setStyle(ButtonStyle.Success)
+.setCustomId(
+'confirmar_registro'
+)
+.setLabel(
+'☑️ Confirmo que sou humano'
+)
+.setStyle(
+ButtonStyle.Success
+)
 );
 
 return interaction.reply({
 embeds: [
 new EmbedBuilder()
 .setColor(0x57f287)
-.setTitle('Confirmar Registro')
+.setTitle(
+'Confirmar Registro'
+)
 .setDescription(
 'Clique no botão abaixo para finalizar seu registro.'
 )
@@ -525,9 +531,160 @@ ephemeral: true
 
 }
 
+//
+// =========================
+// CONFIRMAR REGISTRO
+// =========================
+//
+
+if (
+interaction.isButton() &&
+interaction.customId ===
+'confirmar_registro'
+) {
+
+const dados =
+await pegarRegistroPendente(
+interaction.user.id
+);
+
+if (!dados) {
+
+return interaction.reply({
+content:
+'❌ Nenhum registro pendente encontrado.',
+ephemeral: true
+});
+
+}
+
+const config =
+await pegarConfig();
+
+await criarRegistro(
+interaction.user.id,
+dados
+);
+
+await removerRegistroPendente(
+interaction.user.id
+);
+
+try {
+
+await interaction.member.roles.add(
+config.cargoRegistrado
+);
+
+await interaction.member.roles.remove(
+config.cargoNaoRegistrado
+);
+
+} catch {}
+
+try {
+
+await interaction.member.setNickname(
+dados.nick
+);
+
+} catch {}
+
+return interaction.reply({
+embeds: [
+new EmbedBuilder()
+.setColor(0x57f287)
+.setTitle(
+'✅ Registro Concluído'
+)
+.setDescription(
+'Seu registro foi concluído com sucesso.'
+)
+],
+ephemeral: true
+});
+
+}
+
+//
+// =========================
+// BOTÃO ATUALIZAR REGISTRO
+// =========================
+//
+
+if (
+interaction.isButton() &&
+interaction.customId ===
+'registro_atualizar'
+) {
+
+const registro =
+await pegarRegistro(
+interaction.user.id
+);
+
+if (!registro) {
+
+return interaction.reply({
+content:
+'❌ Você ainda não está registrado.',
+ephemeral: true
+});
+
+}
+
+const modal =
+new ModalBuilder()
+.setCustomId(
+'modal_atualizar_registro'
+)
+.setTitle(
+'Atualizar Registro'
+);
+
+const nick =
+new TextInputBuilder()
+.setCustomId('nick')
+.setLabel('Nick')
+.setValue(
+registro.nick || ''
+)
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+const plataforma =
+new TextInputBuilder()
+.setCustomId('plataforma')
+.setLabel('Mobile / PC / Ambos')
+.setValue(
+registro.plataforma || ''
+)
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(nick),
+
+new ActionRowBuilder()
+.addComponents(plataforma)
+);
+
+return interaction.showModal(
+modal
+);
+
+}
+
+//
 // =========================
 // SALVAR ATUALIZAÇÃO
 // =========================
+//
 
 if (
 interaction.isModalSubmit() &&
@@ -585,8 +742,8 @@ value: plataforma
 ephemeral: true
 });
 
-}
-  
+  }
+
 // =========================
 // SLASH COMMANDS
 // =========================
