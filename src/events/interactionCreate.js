@@ -756,25 +756,35 @@ interaction.customId ===
 const escolha =
 interaction.values[0];
 
-if (escolha === 'xp_msg') {
+if (
+escolha === 'cargos'
+) {
 
 const modal =
 new ModalBuilder()
-.setCustomId('xp_msg_modal')
-.setTitle('XP por Mensagem');
+.setCustomId(
+'xp_cargos_modal'
+)
+.setTitle(
+'Cargos por Level'
+);
 
-const xp =
+const input =
 new TextInputBuilder()
-.setCustomId('xp')
-.setLabel('Quantidade de XP')
+.setCustomId(
+'cargos'
+)
+.setLabel(
+'Ex: 1=IDCargo,5=IDCargo'
+)
 .setStyle(
-TextInputStyle.Short
+TextInputStyle.Paragraph
 )
 .setRequired(true);
 
 modal.addComponents(
 new ActionRowBuilder()
-.addComponents(xp)
+.addComponents(input)
 );
 
 return interaction.showModal(
@@ -783,8 +793,54 @@ modal
 
 }
 
-  }
+}
 
+// =========================
+// SALVAR CARGOS XP
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_cargos_modal'
+) {
+
+const texto =
+interaction.fields.getTextInputValue(
+'cargos'
+);
+
+const cargos = {};
+
+texto
+.split(',')
+.forEach(linha => {
+
+const [
+level,
+cargo
+] = linha.split('=');
+
+cargos[level] = cargo;
+
+});
+
+const config =
+await pegarConfigXP() || {};
+
+await salvarConfigXP({
+...config,
+cargos
+});
+
+return interaction.reply({
+content:
+'✅ Cargos salvos.',
+ephemeral: true
+});
+
+}
+  
 // =========================
 // SALVAR XP POR MENSAGEM
 // =========================
