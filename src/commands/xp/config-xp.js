@@ -58,6 +58,10 @@ value: 'canais'
 {
 label: 'Cargos por level',
 value: 'cargos'
+},
+{
+label: 'Canal de Level Up',
+value: 'canal_level'
 }
 ]);
 
