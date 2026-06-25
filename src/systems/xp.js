@@ -26,7 +26,30 @@ xp: quantidade
 }
 },
 {
+$setOnInsert: {
+level: 0
+}
+},
+{
 upsert: true
+}
+);
+
+}
+
+export async function definirLevel(
+userId,
+level
+) {
+
+await xp.updateOne(
+{
+userId
+},
+{
+$set: {
+level
+}
 }
 );
 
@@ -56,4 +79,4 @@ return await config.findOne({
 id: 'xp'
 });
 
-}
+  }
