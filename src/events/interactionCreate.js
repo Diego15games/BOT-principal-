@@ -922,6 +922,37 @@ ephemeral: true
 
 }
 
+// =========================
+// SALVAR CANAL LEVEL
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_canal_modal'
+) {
+
+const canal =
+interaction.fields.getTextInputValue(
+'canal'
+);
+
+const config =
+await pegarConfigXP();
+
+await salvarConfigXP({
+...config,
+canalLevel: canal
+});
+
+return interaction.reply({
+content:
+'✅ Canal de level configurado.',
+ephemeral: true
+});
+
+}
+
 //==========================
 // SALVAR XP POR LEVEL
 //==========================
