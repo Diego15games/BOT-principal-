@@ -91,9 +91,31 @@ message.author.id,
 level
 );
 
-await message.channel.send(
-`🎉 ${message.author}, você subiu para o nível ${level}!`
-).catch(() => {});
+const canal =
+message.guild.channels.cache.get(
+config.canalLevel
+);
+
+if (canal) {
+
+const msg =
+(config.mensagemLevel ||
+'🎉 {user} subiu para o nível {level}!')
+
+.replace(
+'{user}',
+`${message.author}`
+)
+
+.replace(
+'{level}',
+level
+);
+
+await canal.send(msg)
+.catch(() => {});
+
+}
 
 }
 
