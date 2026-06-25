@@ -1,8 +1,10 @@
 import {
 pegarConfigXP,
-adicionarXP,
-pegarXP
+pegarXP,
+adicionarXP
 } from '../systems/xp.js';
+
+const cooldown = new Map();
 
 export default {
 name: 'messageCreate',
@@ -11,93 +13,92 @@ async execute(message) {
 
 if (message.author.bot) return;
 
-// comando ping
-
-if (
-message.content.toLowerCase() === 'ping'
-) {
-await message.reply('🏓 Pong!');
-}
-
-// sistema xp
-
 const config =
 await pegarConfigXP();
 
 if (!config) return;
 
+// canais sem xp
+
 if (
-config.canaisBloqueados?.includes(
+config.canaisSemXP?.includes(
 message.channel.id
 )
 ) return;
 
-if (!global.xpCooldown)
-global.xpCooldown = new Map();
+// cooldown
 
-const ultimoXP =
-global.xpCooldown.get(
+const tempo =
+config.cooldown || 60;
+
+if (
+cooldown.has(message.author.id)
+) {
+
+const ultimo =
+cooldown.get(
 message.author.id
 );
 
 if (
-ultimoXP &&
-Date.now() - ultimoXP <
-((config.cooldown || 60) * 1000)
+Date.now() - ultimo <
+tempo * 1000
 ) {
 return;
 }
 
-global.xpCooldown.set(
+}
+
+cooldown.set(
 message.author.id,
 Date.now()
 );
 
+// xp por mensagem
+
 const xpGanho =
 config.xpPorMensagem || 5;
-
-const dadosAntes =
-await pegarXP(
-message.author.id
-);
-
-const xpAntes =
-dadosAntes?.xp || 0;
 
 await adicionarXP(
 message.author.id,
 xpGanho
 );
 
-const dadosDepois =
+const dados =
 await pegarXP(
 message.author.id
 );
 
-const xpDepois =
-dadosDepois?.xp || 0;
+const xp =
+dados?.xp || 0;
 
 const xpLevel =
-config.xpLevel || 100;
+config.xpPorLevel || 100;
 
-const levelAntes =
+const level =
 Math.floor(
-xpAntes / xpLevel
+xp / xpLevel
 );
 
-const levelDepois =
-Math.floor(
-xpDepois / xpLevel
-);
+// cargos por level
 
 if (
-levelDepois > levelAntes
+config.cargos &&
+config.cargos[level]
 ) {
 
-await message.channel.send({
-content:
-"🎉 ${message.author} subiu para o nível ${levelDepois}!"
-});
+const cargo =
+message.guild.roles.cache.get(
+config.cargos[level]
+);
+
+if (cargo) {
+
+await message.member.roles.add(
+cargo
+).catch(() => {});
+
+}
 
 }
 
