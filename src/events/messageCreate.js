@@ -80,6 +80,22 @@ Math.floor(
 xp / xpLevel
 );
 
+const levelAtual =
+dados?.level || 0;
+
+if (level > levelAtual) {
+
+await definirLevel(
+message.author.id,
+level
+);
+
+await message.channel.send(
+`🎉 ${message.author}, você subiu para o nível ${level}!`
+).catch(() => {});
+
+}
+
 // cargos por level
 
 if (config.cargos) {
