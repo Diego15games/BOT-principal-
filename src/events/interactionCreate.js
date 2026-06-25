@@ -871,6 +871,43 @@ return interaction.showModal(modal);
 
 }
 
+if (
+escolha === 'canal_level'
+) {
+
+const modal =
+new ModalBuilder()
+.setCustomId(
+'xp_canal_modal'
+)
+.setTitle(
+'Canal de Level Up'
+);
+
+const canal =
+new TextInputBuilder()
+.setCustomId(
+'canal'
+)
+.setLabel(
+'ID do canal'
+)
+.setStyle(
+TextInputStyle.Short
+)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(canal)
+);
+
+return interaction.showModal(
+modal
+);
+
+}
+
 }
   
 // =========================
