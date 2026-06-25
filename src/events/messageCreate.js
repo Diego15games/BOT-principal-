@@ -146,7 +146,39 @@ await message.member.roles.add(
 cargo
 ).catch(() => {});
 
+const canal =
+message.guild.channels.cache.get(
+config.canalLevel
+);
+
+if (canal) {
+
+const msgCargo =
+(config.mensagemCargo ||
+'🏆 {user} recebeu {cargo}!')
+
+.replace(
+'{user}',
+`${message.author}`
+)
+
+.replace(
+'{cargo}',
+`${cargo}`
+)
+
+.replace(
+'{level}',
+level
+);
+
+await canal.send(
+msgCargo
+).catch(() => {});
+
 }
+
+  }
 
 }
 
