@@ -23,9 +23,7 @@ userId
 {
 $inc: {
 xp: quantidade
-}
 },
-{
 $setOnInsert: {
 level: 0
 }
