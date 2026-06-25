@@ -744,39 +744,6 @@ ephemeral: true
   }
 
 // =========================
-// SALVAR XP POR MENSAGEM
-// =========================
-
-if (
-interaction.isModalSubmit() &&
-interaction.customId ===
-'xp_msg_modal'
-) {
-
-const xp =
-Number(
-interaction.fields.getTextInputValue(
-'xp'
-)
-);
-
-const config =
-await pegarConfigXP() || {};
-
-await salvarConfigXP({
-...config,
-xpPorMensagem: xp
-});
-
-return interaction.reply({
-content:
-`✅ XP por mensagem definido para ${xp}`,
-ephemeral: true
-});
-
-}
-
-// =========================
 // MENU CONFIG XP
 // =========================
 
@@ -817,6 +784,39 @@ modal
 }
 
   }
+
+// =========================
+// SALVAR XP POR MENSAGEM
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_msg_modal'
+) {
+
+const xp =
+Number(
+interaction.fields.getTextInputValue(
+'xp'
+)
+);
+
+const config =
+await pegarConfigXP() || {};
+
+await salvarConfigXP({
+...config,
+xpPorMensagem: xp
+});
+
+return interaction.reply({
+content:
+`✅ XP por mensagem definido para ${xp}`,
+ephemeral: true
+});
+
+}
 
 // =========================
 // SLASH COMMANDS
