@@ -24,6 +24,11 @@ pegarRegistroPendente,
 removerRegistroPendente
 } from '../systems/registro.js';
 
+import {
+salvarConfigXP,
+pegarConfigXP
+} from '../systems/xp.js';
+
 export default {
 name: 'interactionCreate',
 
