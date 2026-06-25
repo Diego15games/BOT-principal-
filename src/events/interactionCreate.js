@@ -739,6 +739,27 @@ ephemeral: true
   }
 
 // =========================
+// MENU CONFIG XP
+// =========================
+
+if (
+interaction.isStringSelectMenu() &&
+interaction.customId ===
+'xp_config_menu'
+) {
+
+const escolha =
+interaction.values[0];
+
+return interaction.reply({
+content:
+`Você selecionou: ${escolha}`,
+ephemeral: true
+});
+
+}
+
+// =========================
 // SLASH COMMANDS
 // =========================
 
