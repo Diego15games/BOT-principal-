@@ -902,18 +902,17 @@ interaction.fields.getTextInputValue(
 const config =
 await pegarConfigXP() || {};
 
-await salvarConfigXP({
-...config,
-xpPorMensagem: xp
-});
+config.xpPorMensagem = xp;
+
+await salvarConfigXP(config);
 
 return interaction.reply({
 content:
-`✅ XP por mensagem definido para ${xp}`,
+'✅ XP por mensagem atualizado.',
 ephemeral: true
 });
 
-}
+  }
 
 // =========================
 // SLASH COMMANDS
