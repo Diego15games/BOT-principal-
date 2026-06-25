@@ -747,15 +747,6 @@ ephemeral: true
 // MENU CONFIG XP
 // =========================
 
-  
-new ModalBuilder()
-.
-.setStyle
-
-// =========================
-// SALVAR CARGOS XP
-// =========================
-
 if (
 interaction.isStringSelectMenu() &&
 interaction.customId ===
@@ -880,7 +871,154 @@ return interaction.showModal(modal);
 
 }
 
-  }
+}
+  
+// =========================
+// SALVAR CARGOS XP
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_cargos_modal'
+) {
+
+const texto =
+interaction.fields
+.getTextInputValue(
+'cargos'
+);
+
+const cargos = {};
+
+texto
+.split(',')
+.forEach(item => {
+
+const [
+level,
+cargo
+] = item.split('=');
+
+cargos[
+level.trim()
+] = cargo.trim();
+
+});
+
+const config =
+await pegarConfigXP() || {};
+
+config.cargos =
+cargos;
+
+await salvarConfigXP(config);
+
+return interaction.reply({
+content:
+'✅ Cargos por level atualizados.',
+ephemeral: true
+});
+
+}
+
+//==========================
+// SALVAR XP POR LEVEL
+//==========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_level_modal'
+) {
+
+const xp =
+Number(
+interaction.fields.getTextInputValue(
+'xp'
+)
+);
+
+const config =
+await pegarConfigXP() || {};
+
+config.xpPorLevel = xp;
+
+await salvarConfigXP(config);
+
+return interaction.reply({
+content:
+'✅ XP por level atualizado.',
+ephemeral: true
+});
+
+}
+
+// =========================
+// SALVAR COOLDOWN 
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_cooldown_modal'
+) {
+
+const cooldown =
+Number(
+interaction.fields.getTextInputValue(
+'cooldown'
+)
+);
+
+const config =
+await pegarConfigXP() || {};
+
+config.cooldown = cooldown;
+
+await salvarConfigXP(config);
+
+return interaction.reply({
+content:
+'✅ Cooldown atualizado.',
+ephemeral: true
+});
+
+}
+
+// =========================
+// SALVAR CANAIS SEM XP
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_canais_modal'
+) {
+
+const canais =
+interaction.fields
+.getTextInputValue(
+'canais'
+)
+.split(',')
+.map(id => id.trim());
+
+const config =
+await pegarConfigXP() || {};
+
+config.canaisSemXP =
+canais;
+
+await salvarConfigXP(config);
+
+return interaction.reply({
+content:
+'✅ Canais sem XP atualizados.',
+ephemeral: true
+});
+
+}
   
 // =========================
 // SALVAR XP POR MENSAGEM
