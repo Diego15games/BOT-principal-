@@ -747,6 +747,15 @@ ephemeral: true
 // MENU CONFIG XP
 // =========================
 
+  
+new ModalBuilder()
+.
+.setStyle
+
+// =========================
+// SALVAR CARGOS XP
+// =========================
+
 if (
 interaction.isStringSelectMenu() &&
 interaction.customId ===
@@ -758,96 +767,120 @@ interaction.values[0];
 
 if (escolha === 'xp_msg') {
 
-return interaction.reply({
-content: 'Menu XP por mensagem funcionando.',
-ephemeral: true
-});
+const modal =
+new ModalBuilder()
+.setCustomId('xp_msg_modal')
+.setTitle('XP por Mensagem');
+
+const input =
+new TextInputBuilder()
+.setCustomId('xp')
+.setLabel('XP ganho por mensagem')
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
+);
+
+return interaction.showModal(modal);
 
 }
 
 if (escolha === 'xp_level') {
 
-return interaction.reply({
-content: 'Menu XP por level funcionando.',
-ephemeral: true
-});
+const modal =
+new ModalBuilder()
+.setCustomId('xp_level_modal')
+.setTitle('XP para Level');
+
+const input =
+new TextInputBuilder()
+.setCustomId('xp')
+.setLabel('XP necessário para subir')
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
+);
+
+return interaction.showModal(modal);
 
 }
 
 if (escolha === 'cooldown') {
 
-return interaction.reply({
-content: 'Menu Cooldown funcionando.',
-ephemeral: true
-});
+const modal =
+new ModalBuilder()
+.setCustomId('xp_cooldown_modal')
+.setTitle('Cooldown XP');
+
+const input =
+new TextInputBuilder()
+.setCustomId('cooldown')
+.setLabel('Tempo em segundos')
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
+);
+
+return interaction.showModal(modal);
 
 }
 
 if (escolha === 'canais') {
 
-return interaction.reply({
-content: 'Menu canais funcionando.',
-ephemeral: true
-});
+const modal =
+new ModalBuilder()
+.setCustomId('xp_canais_modal')
+.setTitle('Canais sem XP');
+
+const input =
+new TextInputBuilder()
+.setCustomId('canais')
+.setLabel('IDs separados por vírgula')
+.setStyle(TextInputStyle.Paragraph)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
+);
+
+return interaction.showModal(modal);
 
 }
 
 if (escolha === 'cargos') {
 
-return interaction.reply({
-content: 'Menu cargos funcionando.',
-ephemeral: true
-});
+const modal =
+new ModalBuilder()
+.setCustomId('xp_cargos_modal')
+.setTitle('Cargos por Level');
 
-}
+const input =
+new TextInputBuilder()
+.setCustomId('cargos')
+.setLabel('Ex: 1=ID,5=ID,10=ID')
+.setStyle(TextInputStyle.Paragraph)
+.setRequired(true);
 
-}
-
-// =========================
-// SALVAR CARGOS XP
-// =========================
-
-if (
-interaction.isModalSubmit() &&
-interaction.customId ===
-'xp_cargos_modal'
-) {
-
-const texto =
-interaction.fields.getTextInputValue(
-'cargos'
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
 );
 
-const cargos = {};
-
-texto
-.split(',')
-.forEach(linha => {
-
-const [
-level,
-cargo
-] = linha.split('=');
-
-cargos[level] = cargo;
-
-});
-
-const config =
-await pegarConfigXP() || {};
-
-await salvarConfigXP({
-...config,
-cargos
-});
-
-return interaction.reply({
-content:
-'✅ Cargos salvos.',
-ephemeral: true
-});
+return interaction.showModal(modal);
 
 }
+
+  }
   
 // =========================
 // SALVAR XP POR MENSAGEM
