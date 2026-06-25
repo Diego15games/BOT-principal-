@@ -756,40 +756,48 @@ interaction.customId ===
 const escolha =
 interaction.values[0];
 
-if (
-escolha === 'cargos'
-) {
+if (escolha === 'xp_msg') {
 
-const modal =
-new ModalBuilder()
-.setCustomId(
-'xp_cargos_modal'
-)
-.setTitle(
-'Cargos por Level'
-);
+return interaction.reply({
+content: 'Menu XP por mensagem funcionando.',
+ephemeral: true
+});
 
-const input =
-new TextInputBuilder()
-.setCustomId(
-'cargos'
-)
-.setLabel(
-'Ex: 1=IDCargo,5=IDCargo'
-)
-.setStyle(
-TextInputStyle.Paragraph
-)
-.setRequired(true);
+}
 
-modal.addComponents(
-new ActionRowBuilder()
-.addComponents(input)
-);
+if (escolha === 'xp_level') {
 
-return interaction.showModal(
-modal
-);
+return interaction.reply({
+content: 'Menu XP por level funcionando.',
+ephemeral: true
+});
+
+}
+
+if (escolha === 'cooldown') {
+
+return interaction.reply({
+content: 'Menu Cooldown funcionando.',
+ephemeral: true
+});
+
+}
+
+if (escolha === 'canais') {
+
+return interaction.reply({
+content: 'Menu canais funcionando.',
+ephemeral: true
+});
+
+}
+
+if (escolha === 'cargos') {
+
+return interaction.reply({
+content: 'Menu cargos funcionando.',
+ephemeral: true
+});
 
 }
 
