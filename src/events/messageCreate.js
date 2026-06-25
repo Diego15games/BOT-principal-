@@ -29,7 +29,7 @@ message.channel.id
 // cooldown
 
 const tempo =
-config.cooldown || 60;
+config.esfriar || 60;
 
 if (
 cooldown.has(message.author.id)
