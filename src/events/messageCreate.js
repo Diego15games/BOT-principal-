@@ -82,17 +82,26 @@ xp / xpLevel
 
 // cargos por level
 
-if (
-config.cargos &&
-config.cargos[level]
-) {
+if (config.cargos) {
+
+for (const lvl in config.cargos) {
+
+if (level >= Number(lvl)) {
+
+const cargoId =
+config.cargos[lvl];
 
 const cargo =
 message.guild.roles.cache.get(
-config.cargos[level]
+cargoId
 );
 
-if (cargo) {
+if (
+cargo &&
+!message.member.roles.cache.has(
+cargoId
+)
+) {
 
 await message.member.roles.add(
 cargo
@@ -103,4 +112,5 @@ cargo
 }
 
 }
-};
+
+  }
