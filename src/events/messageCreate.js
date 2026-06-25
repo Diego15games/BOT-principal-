@@ -1,7 +1,8 @@
 import {
 pegarConfigXP,
 pegarXP,
-adicionarXP
+adicionarXP,
+definirLevel
 } from '../systems/xp.js';
 
 const cooldown = new Map();
