@@ -80,10 +80,8 @@ new EmbedBuilder()
 .setColor(cor)
 
 .setAuthor({
-name:
-`Perfil de ${usuario.username}`,
-iconURL:
-usuario.displayAvatarURL()
+name: '👤 Perfil do Player',
+iconURL: usuario.displayAvatarURL()
 })
 
 .setThumbnail(
@@ -91,6 +89,8 @@ usuario.displayAvatarURL({
 size: 1024
 })
 )
+
+.setTitle(`✨ ${membro.displayName}`)
 
 .setDescription(
 [
@@ -116,10 +116,10 @@ size: 1024
 '━━━━━━━━━━━━━━━━━━━━',
 '',
 '⭐ **Nível**',
-`> ${level}`,
+`> **${level}**`,
 '',
-'💎 **XP**',
-`> ${xp} XP`,
+'💎 **XP Atual**',
+`> **${xp} XP**`,
 '',
 '🏅 **Cargo Atual**',
 `> ${membro.roles.highest}`,
