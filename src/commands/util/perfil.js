@@ -5,11 +5,11 @@ EmbedBuilder
 
 import {
 pegarRegistro
-} from '../systems/registro.js';
+} from '../../systems/registro.js';
 
 import {
 pegarXP
-} from '../systems/xp.js';
+} from '../../systems/xp.js';
 
 export default {
 
