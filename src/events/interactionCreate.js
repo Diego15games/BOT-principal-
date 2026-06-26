@@ -908,6 +908,80 @@ modal
 
 }
 
+if (
+escolha === 'msg_level'
+) {
+
+const modal =
+new ModalBuilder()
+.setCustomId(
+'xp_msg_level_modal'
+)
+.setTitle(
+'Mensagem de Level'
+);
+
+const input =
+new TextInputBuilder()
+.setCustomId(
+'mensagem'
+)
+.setLabel(
+'Use {user} e {level}'
+)
+.setStyle(
+TextInputStyle.Paragraph
+)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
+);
+
+return interaction.showModal(
+modal
+);
+
+}
+
+if (
+escolha === 'msg_cargo'
+) {
+
+const modal =
+new ModalBuilder()
+.setCustomId(
+'xp_msg_cargo_modal'
+)
+.setTitle(
+'Mensagem de Cargo'
+);
+
+const input =
+new TextInputBuilder()
+.setCustomId(
+'mensagem'
+)
+.setLabel(
+'Use {user}, {level} e {cargo}'
+)
+.setStyle(
+TextInputStyle.Paragraph
+)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(input)
+);
+
+return interaction.showModal(
+modal
+);
+
+}
+
 }
   
 // =========================
@@ -985,6 +1059,68 @@ canalLevel: canal
 return interaction.reply({
 content:
 '✅ Canal de level configurado.',
+ephemeral: true
+});
+
+}
+
+// =========================
+// SALVAR MENSAGEM LEVEL
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_msg_level_modal'
+) {
+
+const mensagem =
+interaction.fields.getTextInputValue(
+'mensagem'
+);
+
+const config =
+await pegarConfigXP();
+
+await salvarConfigXP({
+...config,
+mensagemLevel: mensagem
+});
+
+return interaction.reply({
+content:
+'✅ Mensagem de level salva.',
+ephemeral: true
+});
+
+}
+
+// =========================
+// SALVAR MENSAGEM CARGO
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId ===
+'xp_msg_cargo_modal'
+) {
+
+const mensagem =
+interaction.fields.getTextInputValue(
+'mensagem'
+);
+
+const config =
+await pegarConfigXP();
+
+await salvarConfigXP({
+...config,
+mensagemCargo: mensagem
+});
+
+return interaction.reply({
+content:
+'✅ Mensagem de cargo salva.',
 ephemeral: true
 });
 
