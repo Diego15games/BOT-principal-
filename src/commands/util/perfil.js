@@ -99,7 +99,7 @@ size: 1024
 '╰━━━━━━━━━━━━━━━━━━━━━━━━━━╯',
 '',
 '👤 **Usuário**',
-`> ${usuario}`,
+`> ${membro.displayName}`,
 '',
 '🏷️ **Nome de Exibição**',
 `> ${membro.displayName}`,
