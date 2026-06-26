@@ -101,6 +101,9 @@ size: 1024
 '👤 **Usuário**',
 `> ${usuario}`,
 '',
+'🏷️ **Nome de Exibição**',
+`> ${membro.displayName}`,
+'',
 '🎮 **Nick Name**',
 `> ${registro.nick}`,
 '',
@@ -124,8 +127,16 @@ size: 1024
 '━━━━━━━━━━━━━━━━━━━━',
 '',
 '🆔 **ID**',
-`> ${usuario.id}`
+`> ${usuario.id}`,
+'',
+'📥 **Entrou no servidor**',
+`> <t:${Math.floor(membro.joinedTimestamp / 1000)}:D>`
+  
 ].join('\n')
+)
+
+.setImage(
+'https://i.imgur.com/QK6Jm7L.png'
 )
 
 .setFooter({
