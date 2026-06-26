@@ -5,79 +5,140 @@ EmbedBuilder
 
 import {
 pegarRegistro
-} from '../../systems/registro.js';
+} from '../systems/registro.js';
+
+import {
+pegarXP
+} from '../systems/xp.js';
 
 export default {
-data: new SlashCommandBuilder()
+
+data:
+new SlashCommandBuilder()
+
 .setName('perfil')
-.setDescription('Ver perfil de um jogador')
+
+.setDescription(
+'Mostra o perfil de um jogador'
+)
+
 .addUserOption(option =>
 option
 .setName('usuario')
-.setDescription('Jogador')
+.setDescription(
+'Usuário'
+)
+.setRequired(false)
 ),
 
 async execute(interaction) {
 
-const user =
+const usuario =
 interaction.options.getUser(
 'usuario'
 ) || interaction.user;
 
+const membro =
+await interaction.guild.members.fetch(
+usuario.id
+);
+
 const registro =
 await pegarRegistro(
-user.id
+usuario.id
 );
 
 if (!registro) {
 
 return interaction.reply({
 content:
-'❌ Este jogador não possui registro.',
+'❌ Esse usuário não está registrado.',
 ephemeral: true
 });
 
 }
 
+const dadosXP =
+await pegarXP(
+usuario.id
+);
+
+const xp =
+dadosXP?.xp || 0;
+
+const level =
+dadosXP?.level || 0;
+
+const cor =
+membro.displayHexColor === '#000000'
+? 0x5865F2
+: membro.displayHexColor;
+
 const embed =
 new EmbedBuilder()
-.setColor(0x5865F2)
-.setTitle(`👤 Perfil`)
+
+.setColor(cor)
+
+.setAuthor({
+name:
+`Perfil de ${usuario.username}`,
+iconURL:
+usuario.displayAvatarURL()
+})
+
 .setThumbnail(
-user.displayAvatarURL({
+usuario.displayAvatarURL({
 size: 1024
 })
 )
-.addFields(
-{
-name: '👤 Nome',
-value:
-registro.nome ||
-'Não informado',
-inline: false
-},
-{
-name: '⚧ Sexo',
-value:
-registro.sexualidade ||
-'Não informado',
-inline: false
-},
-{
-name: '💻 Plataforma',
-value:
-registro.plataforma ||
-'Não informada',
-inline: false
-}
-)
-.setFooter({
-text: user.username
-});
 
-await interaction.reply({
+.setDescription(
+[
+'╭━━━━━━━━━━━━━━━━━━━━━━━━━━╮',
+'        👤 **PERFIL DO PLAYER**',
+'╰━━━━━━━━━━━━━━━━━━━━━━━━━━╯',
+'',
+'👤 **Usuário**',
+`> ${usuario}`,
+'',
+'🎮 **Nick Name**',
+`> ${registro.nick}`,
+'',
+'📱 **Plataforma**',
+`> ${registro.plataforma}`,
+'',
+'🌈 **Sexualidade**',
+`> ${registro.sexualidade}`,
+'',
+'━━━━━━━━━━━━━━━━━━━━',
+'',
+'⭐ **Nível**',
+`> ${level}`,
+'',
+'💎 **XP**',
+`> ${xp} XP`,
+'',
+'🏅 **Cargo Atual**',
+`> ${membro.roles.highest}`,
+'',
+'━━━━━━━━━━━━━━━━━━━━',
+'',
+'🆔 **ID**',
+`> ${usuario.id}`
+].join('\n')
+)
+
+.setFooter({
+text:
+'XT BOT • Sistema de Perfil'
+})
+
+.setTimestamp();
+
+return interaction.reply({
 embeds: [embed]
 });
 
 }
+
 };
