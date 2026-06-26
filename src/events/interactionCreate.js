@@ -1080,7 +1080,7 @@ interaction.fields.getTextInputValue(
 );
 
 const config =
-await pegarConfigXP();
+await pegarConfigXP() || {};
 
 await salvarConfigXP({
 ...config,
@@ -1111,7 +1111,7 @@ interaction.fields.getTextInputValue(
 );
 
 const config =
-await pegarConfigXP();
+await pegarConfigXP() || {};
 
 await salvarConfigXP({
 ...config,
