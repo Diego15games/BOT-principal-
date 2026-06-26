@@ -62,6 +62,14 @@ value: 'cargos'
 {
 label: 'Canal de Level Up',
 value: 'canal_level'
+},
+{
+label: 'Mensagem de Level',
+value: 'msg_level'
+},
+{
+label: 'Mensagem de Cargo',
+value: 'msg_cargo'
 }
 ]);
 
