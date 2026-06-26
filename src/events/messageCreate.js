@@ -30,7 +30,7 @@ message.channel.id
 // cooldown
 
 const tempo =
-config.esfriar || 60;
+config.cooldown || 60;
 
 if (
 cooldown.has(message.author.id)
@@ -102,15 +102,9 @@ const msg =
 (config.mensagemLevel ||
 '🎉 {user} subiu para o nível {level}!')
 
-.replace(
-'{user}',
-`${message.author}`
-)
-
-.replace(
-'{level}',
-level
-);
+.replace('{user}', `${message.author}`)
+.replace('{level}', level)
+.replace('{xp}', xp);
 
 await canal.send(msg)
 .catch(() => {});
@@ -157,20 +151,10 @@ const msgCargo =
 (config.mensagemCargo ||
 '🏆 {user} recebeu {cargo}!')
 
-.replace(
-'{user}',
-`${message.author}`
-)
-
-.replace(
-'{cargo}',
-`${cargo}`
-)
-
-.replace(
-'{level}',
-level
-);
+.replace('{user}', `${message.author}`)
+.replace('{cargo}', `${cargo}`)
+.replace('{level}', level)
+.replace('{xp}', xp);
 
 await canal.send(
 msgCargo
