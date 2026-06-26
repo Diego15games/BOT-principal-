@@ -95,7 +95,7 @@ size: 1024
 .setDescription(
 [
 '╔═══════════════╗',
-'      **PERFIL DO PLAYER**',
+'       **PERFIL DO PLAYER**',
 '╚═══════════════╝',
 '',
 '👤 **Usuário**',
