@@ -648,8 +648,8 @@ new  TextInputBuilder ( )
 . definirValor (
 registro . nick || ''
 )
-. setStyle (
-Estilo de entrada de texto . Curto
+.setStyle(
+TextInputStyle.Short
 )
 . setRequired ( true ) ;
 
@@ -660,8 +660,8 @@ new  TextInputBuilder ( )
 . definirValor (
 registro . plataforma || ''
 )
-. setStyle (
-Estilo de entrada de texto . Curto
+.setStyle(
+TextInputStyle.Short
 )
 . setRequired ( true ) ;
 
