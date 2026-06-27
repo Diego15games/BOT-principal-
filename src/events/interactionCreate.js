@@ -642,7 +642,7 @@ new ModalBuilder()
 ) ;
 
 const  nick =
-novo  TextInputBuilder ( )
+new  TextInputBuilder ( )
 . setCustomId ( 'nick' )
 . setLabel ( 'Nick' )
 . definirValor (
@@ -654,7 +654,7 @@ Estilo de entrada de texto . Curto
 . setRequired ( true ) ;
 
 const  plataforma =
-novo  TextInputBuilder ( )
+new  TextInputBuilder ( )
 . setCustomId ( 'plataforma' )
 . setLabel ( 'Celular / PC / Ambos' )
 . definirValor (
@@ -666,10 +666,10 @@ Estilo de entrada de texto . Curto
 . setRequired ( true ) ;
 
 modal.adicionarComponentes (​​
-novo  ActionRowBuilder ( )
+new  ActionRowBuilder ( )
 . adicionarComponentes ( apelido ) ,
 
-novo  ActionRowBuilder ( )
+new  ActionRowBuilder ( )
 . adicionarComponentes ( plataforma )
 ) ;
 
