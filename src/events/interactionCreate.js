@@ -632,56 +632,56 @@ ephemeral: true
 
 }
 
-const modal =
-new ModalBuilder()
-.setCustomId(
+const  modal =
+novo  ConstrutorModal ( )
+. setCustomId (
 'modal_atualizar_registro'
 )
-.setTitle(
+. definirTítulo (
 'Atualizar Registro'
-);
+) ;
 
-const nick =
-new TextInputBuilder()
-.setCustomId('nick')
-.setLabel('Nick')
-.setValue(
-registro.nick || ''
+const  nick =
+novo  TextInputBuilder ( )
+. setCustomId ( 'nick' )
+. setLabel ( 'Nick' )
+. definirValor (
+registro . nick || ''
 )
-.setStyle(
-TextInputStyle.Short
+. setStyle (
+Estilo de entrada de texto . Curto
 )
-.setRequired(true);
+. setRequired ( true ) ;
 
-const plataforma =
-new TextInputBuilder()
-.setCustomId('plataforma')
-.setLabel('Mobile / PC / Ambos')
-.setValue(
-registro.plataforma || ''
+const  plataforma =
+novo  TextInputBuilder ( )
+. setCustomId ( 'plataforma' )
+. setLabel ( 'Celular / PC / Ambos' )
+. definirValor (
+registro . plataforma || ''
 )
-.setStyle(
-TextInputStyle.Short
+. setStyle (
+Estilo de entrada de texto . Curto
 )
-.setRequired(true);
+. setRequired ( true ) ;
 
-modal.addComponents(
-new ActionRowBuilder()
-.addComponents(nick),
+modal.adicionarComponentes (​​
+novo  ActionRowBuilder ( )
+. adicionarComponentes ( apelido ) ,
 
-new ActionRowBuilder()
-.addComponents(plataforma)
-);
+novo  ActionRowBuilder ( )
+. adicionarComponentes ( plataforma )
+) ;
 
-return interaction.showModal(
+retornar  interação . mostrarModal (
 modal
-);
+) ;
 
 }
 
-//
-// =========================
-// SALVAR ATUALIZAÇÃO
+
+
+
 // =========================
 //
 
@@ -729,8 +729,8 @@ new EmbedBuilder()
 )
 .addFields(
 {
-name: 'Nick',
-value: nick
+}: 'Nick',
+: nick
 },
 {
 name: 'Plataforma',
@@ -1225,36 +1225,54 @@ ephemeral: true
 }
   
 // =========================
-// SALVAR XP POR MENSAGEM
+// SALVAR XP POR CARGO
 // =========================
 
 if (
 interaction.isModalSubmit() &&
 interaction.customId ===
-'xp_msg_modal'
+'xp_cargo_modal'
 ) {
 
-const xp =
-Number(
+const texto =
 interaction.fields.getTextInputValue(
-'xp'
-)
+'cargos'
 );
+
+const xpCargo = {};
+
+texto
+.split(',')
+.forEach(item => {
+
+const [
+cargo,
+xp
+] = item.split('=');
+
+xpCargo[
+cargo.trim()
+] = Number(
+xp.trim()
+);
+
+});
 
 const config =
 await pegarConfigXP() || {};
 
-config.xpPorMensagem = xp;
+config.xpCargo =
+xpCargo;
 
 await salvarConfigXP(config);
 
 return interaction.reply({
 content:
-'✅ XP por mensagem atualizado.',
+'✅ XP por cargo atualizado.',
 ephemeral: true
 });
 
-  }
+}
 
 // =========================
 // SLASH COMMANDS
