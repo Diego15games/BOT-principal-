@@ -756,18 +756,18 @@ interaction.customId ===
 const escolha =
 interaction.values[0];
 
-if (escolha === 'xp_msg') {
+if (escolha === 'xp_cargo') {
 
 const modal =
 new ModalBuilder()
-.setCustomId('xp_msg_modal')
-.setTitle('XP por Mensagem');
+.setCustomId('xp_cargo_modal')
+.setTitle('XP por Cargo');
 
 const input =
 new TextInputBuilder()
-.setCustomId('xp')
-.setLabel('XP ganho por mensagem')
-.setStyle(TextInputStyle.Short)
+.setCustomId('cargos')
+.setLabel('Ex: IDCargo=5, IDCargo2=20')
+.setStyle(TextInputStyle.Paragraph)
 .setRequired(true);
 
 modal.addComponents(
@@ -777,7 +777,7 @@ new ActionRowBuilder()
 
 return interaction.showModal(modal);
 
-}
+  }
 
 if (escolha === 'xp_level') {
 
