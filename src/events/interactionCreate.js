@@ -653,29 +653,29 @@ TextInputStyle.Short
 )
 . setRequired ( true ) ;
 
-const  plataforma =
-new  TextInputBuilder ( )
-. setCustomId ( 'plataforma' )
-. setLabel ( 'Celular / PC / Ambos' )
-. definirValor (
-registro . plataforma || ''
+const plataforma =
+new TextInputBuilder()
+.setCustomId('plataforma')
+.setLabel('Celular / PC / Ambos')
+.setValue(
+registro.plataforma || ''
 )
 .setStyle(
 TextInputStyle.Short
 )
-. setRequired ( true ) ;
+.setRequired(true);
 
 modal.addComponents(
 new ActionRowBuilder()
-.addComponents(apelido)
-);
-new  ActionRowBuilder ( )
-. addComponents ( plataforma )
-) ;
+.addComponents(apelido),
 
-retornar  interação . mostrarModal (
+new ActionRowBuilder()
+.addComponents(plataforma)
+);
+
+return interaction.showModal(
 modal
-) ;
+);
 
 }
 
