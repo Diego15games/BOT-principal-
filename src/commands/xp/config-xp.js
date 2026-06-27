@@ -40,8 +40,9 @@ new StringSelectMenuBuilder()
 
 .addOptions([
 {
-label: 'XP por mensagem',
-value: 'xp_msg'
+label: 'XP por Cargo',
+value: 'xp_cargo',
+description: 'Definir XP por cargo'
 },
 {
 label: 'XP para level',
