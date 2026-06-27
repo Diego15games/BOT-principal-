@@ -729,8 +729,8 @@ new EmbedBuilder()
 )
 .addFields(
 {
-}: 'Nick',
-: nick
+name: 'Nick',
+value: nick
 },
 {
 name: 'Plataforma',
