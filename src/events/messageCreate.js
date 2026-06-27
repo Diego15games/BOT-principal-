@@ -57,8 +57,31 @@ Date.now()
 
 // xp por mensagem
 
-const xpGanho =
-config.xpPorMensagem || 5;
+let xpGanho = 0;
+
+if (config.xpCargo) {
+
+const cargos = message.member.roles.cache
+.sort((a, b) => b.position - a.position);
+
+for (const cargo of cargos.values()) {
+
+if (
+config.xpCargo[cargo.id]
+) {
+
+xpGanho =
+config.xpCargo[cargo.id];
+
+break;
+
+}
+
+}
+
+}
+
+if (xpGanho <= 0) return;
 
 await adicionarXP(
 message.author.id,
