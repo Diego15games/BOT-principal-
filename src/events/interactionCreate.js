@@ -665,12 +665,12 @@ TextInputStyle.Short
 )
 . setRequired ( true ) ;
 
-modal.adicionarComponentes (​​
+modal.addComponents(
+new ActionRowBuilder()
+.addComponents(apelido)
+);
 new  ActionRowBuilder ( )
-. adicionarComponentes ( apelido ) ,
-
-new  ActionRowBuilder ( )
-. adicionarComponentes ( plataforma )
+. addComponents ( plataforma )
 ) ;
 
 retornar  interação . mostrarModal (
