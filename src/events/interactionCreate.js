@@ -633,7 +633,7 @@ ephemeral: true
 }
 
 const  modal =
-novo  ConstrutorModal ( )
+new ModalBuilder()
 . setCustomId (
 'modal_atualizar_registro'
 )
