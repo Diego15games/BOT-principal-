@@ -676,54 +676,38 @@ ephemeral: true
 
 }
 
-const  modal =
+const modal =
 new ModalBuilder()
-. setCustomId (
-'modal_atualizar_registro'
-)
-. definirTítulo (
-'Atualizar Registro'
-) ;
+.setCustomId('modal_atualizar_registro')
+.setTitle('Atualizar Registro');
 
-const  nick =
-new  TextInputBuilder ( )
-. setCustomId ( 'nick' )
-. setLabel ( 'Nick' )
-. definirValor (
-registro . nick || ''
-)
-.setStyle(
-TextInputStyle.Short
-)
-. setRequired ( true ) ;
+const nick =
+new TextInputBuilder()
+.setCustomId('nick')
+.setLabel('Nick')
+.setValue(registro.nick || '')
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
 
 const plataforma =
 new TextInputBuilder()
 .setCustomId('plataforma')
 .setLabel('Celular / PC / Ambos')
-.setValue(
-registro.plataforma || ''
-)
-.setStyle(
-TextInputStyle.Short
-)
+.setValue(registro.plataforma || '')
+.setStyle(TextInputStyle.Short)
 .setRequired(true);
 
 modal.addComponents(
 new ActionRowBuilder()
-.addComponents(apelido),
+.addComponents(nick),
 
 new ActionRowBuilder()
 .addComponents(plataforma)
 );
 
-return interaction.showModal(
-modal
-);
+return interaction.showModal(modal);
 
 }
-
-
 
 
 // =========================
