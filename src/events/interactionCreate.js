@@ -37,6 +37,10 @@ import {
 painelXP
 } from '../panels/painelXP.js';
 
+import {
+executarBotoesXP
+} from '../panels/xpButtons.js';
+
 export default {
 name: 'interactionCreate',
 
@@ -54,6 +58,10 @@ fs.readFileSync(
 } catch {
 ticketConfig = {};
 }
+
+if (
+await executarBotoesXP(interaction)
+) return;
 
 // =========================
 // PAINEL ADMINISTRATIVO
