@@ -29,6 +29,14 @@ salvarConfigXP,
 pegarConfigXP
 } from '../systems/xp.js';
 
+import {
+painelPrincipal
+} from '../panels/painelPrincipal.js';
+
+import {
+painelXP
+} from '../panels/painelXP.js';
+
 export default {
 name: 'interactionCreate',
 
@@ -45,6 +53,34 @@ fs.readFileSync(
 );
 } catch {
 ticketConfig = {};
+}
+
+// =========================
+// PAINEL ADMINISTRATIVO
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId ===
+'painel_xp'
+) {
+
+return interaction.update(
+painelXP()
+);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId ===
+'painel_principal'
+) {
+
+return interaction.update(
+painelPrincipal()
+);
+
 }
 
 // =========================
