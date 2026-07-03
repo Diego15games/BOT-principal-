@@ -1,6 +1,6 @@
 import { db } from './database.js';
 
-const xp = db.collection('xp');
+const xpCollection = db.collection('xp');
 const config = db.collection('xpConfig');
 
 // =========================
