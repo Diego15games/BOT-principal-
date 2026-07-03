@@ -1,168 +1,74 @@
 import { db } from './database.js';
 
-const xp = db.collection('xp');
-const config = db.collection('xpConfig');
+const xpCollection = db.collection('xp');
+const configCollection = db.collection('xpConfig');
 
 // =========================
 // XP DO USUÁRIO
 // =========================
 
+// Busca os dados de XP e Level do usuário
 export async function pegarXP(userId) {
-
-return await xp.findOne({ userId });
-
+  return await xpCollection.findOne({ userId });
 }
 
+// Adiciona XP com sistema automático de upsert
 export async function adicionarXP(userId, quantidade) {
-
-await xp.updateOne(
-{ userId },
-{
-$inc: { xp: quantidade },
-$setOnInsert: {
-level: 0
-}
-},
-{
-upsert: true
-}
-);
-
+  await xpCollection.updateOne(
+    { userId },
+    {
+      $inc: { xp: quantidade },
+      $setOnInsert: { level: 0 }
+    },
+    { upsert: true }
+  );
 }
 
-export async function definirLevel(userId, level) {
-
-await xp.updateOne(
-{ userId },
-{
-$set: { level }
-}
-);
-
-}
-
-// =========================
-// CONFIGURAÇÃO
-// =========================
-
-export async function pegarConfigXP() {
-
-return await config.findOne({
-id: 'xp'
-});
-
-}
-
-export async function salvarConfigXP(dados) {
-
-await config.updateOne(
-{
-id: 'xp'
-},
-{
-$set: dados
-},
-{
-upsert: true
-}
-);
-
-}
-
+// Define o XP diretamente para um valor fixo
 export async function definirXP(userId, xp) {
-
-await xpCollection.updateOne(
-{ userId },
-{
-$set: { xp }
-},
-{
-upsert: true
-}
-);
-
+  await xpCollection.updateOne(
+    { userId },
+    { $set: { xp } },
+    { upsert: true }
+  );
 }
 
+// Remove XP garantindo que o total nunca fique abaixo de zero
 export async function removerXP(userId, quantidade) {
+  const dados = await pegarXP(userId);
+  const atual = dados?.xp || 0;
+  const novo = Math.max(0, atual - quantidade);
 
-const dados = await pegarXP(userId);
-
-const atual = dados?.xp || 0;
-
-const novo = Math.max(0, atual - quantidade);
-
-await xpCollection.updateOne(
-{ userId },
-{
-$set: { xp: novo }
-},
-{
-upsert: true
-}
-);
-
+  await xpCollection.updateOne(
+    { userId },
+    { $set: { xp: novo } },
+    { upsert: true }
+  );
 }
 
-export async function adicionarXPManual(userId, quantidade) {
-
-await xpCollection.updateOne(
-{ userId },
-{
-$inc: { xp: quantidade }
-},
-{
-upsert: true
-}
-);
-
-}
-
-export async function definirNivel(userId, nivel) {
-
-await xpCollection.updateOne(
-{ userId },
-{
-$set: { level: nivel }
-},
-{
-upsert: true
-}
-);
-
-  }
-
-export async function pegarXP(userId) {
-    return await xp.findOne({ userId });
-}
-
-export async function adicionarXP(userId, quantidade) {
-    await xp.updateOne(
-        { userId },
-        {
-            $inc: { xp: quantidade },
-            $setOnInsert: {
-                level: 0
-            }
-        },
-        { upsert: true }
-    );
-}
-
-export async function removerXP(userId, quantidade) {
-    await xp.updateOne(
-        { userId },
-        {
-            $inc: { xp: -quantidade }
-        }
-    );
-}
-
+// Define o Level diretamente
 export async function definirLevel(userId, level) {
-    await xp.updateOne(
-        { userId },
-        {
-            $set: { level }
-        },
-        { upsert: true }
-    );
+  await xpCollection.updateOne(
+    { userId },
+    { $set: { level } },
+    { upsert: true }
+  );
+}
+
+// =========================
+// CONFIGURAÇÃO DO BOT
+// =========================
+
+// Busca as configurações globais de XP do bot
+export async function pegarConfigXP() {
+  return await configCollection.findOne({ id: 'xp' });
+}
+
+// Salva as configurações globais de XP do bot
+export async function salvarConfigXP(dados) {
+  await configCollection.updateOne(
+    { id: 'xp' },
+    { $set: dados },
+    { upsert: true }
+  );
 }
