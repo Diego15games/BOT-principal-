@@ -96,16 +96,31 @@ message.author.id
 const xp =
 dados?.xp || 0;
 
-const xpLevel =
-config.xpPorLevel || 100;
-
-const level =
-Math.floor(
-xp / xpLevel
-);
-
 const levelAtual =
 dados?.level || 0;
+
+let level = 0;
+
+const tabela =
+config.xpLevels || {};
+
+const niveis =
+Object.keys(tabela)
+.sort((a, b) => Number(a) - Number(b));
+
+for (const lvl of niveis) {
+
+if (xp >= tabela[lvl]) {
+
+level = Number(lvl);
+
+} else {
+
+break;
+
+}
+
+}
 
 if (level > levelAtual) {
 
