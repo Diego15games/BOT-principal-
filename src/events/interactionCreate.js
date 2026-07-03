@@ -1172,7 +1172,9 @@ interaction.fields.getTextInputValue(
 const config =
 await pegarConfigXP() || {};
 
-config.xpPorLevel = xp;
+config.xpLevels = {
+1: xp
+};
 
 await salvarConfigXP(config);
 
