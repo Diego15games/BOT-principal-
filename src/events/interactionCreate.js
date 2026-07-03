@@ -64,6 +64,32 @@ await executarBotoesXP(interaction)
 ) return
 
 // =========================
+// PAINEL ADMINISTRATIVO
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === 'painel_xp'
+) {
+
+return interaction.update(
+painelXP()
+);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === 'painel_principal'
+) {
+
+return interaction.update(
+painelPrincipal()
+);
+
+}
+
+// =========================
 // ABRIR TICKET
 // =========================
 
