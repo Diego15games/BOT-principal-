@@ -1,80 +1,39 @@
-import { db } from './database.js';
+import fs from 'fs';
 
-const xp = db.collection('xp');
-const config = db.collection('xpConfig');
-
-export async function pegarXP(userId) {
-
-return await xp.findOne({
-userId
-});
-
-}
-
-export async function adicionarXP(
-userId,
-quantidade
-) {
-
-await xp.updateOne(
-{
-userId
-},
-{
-$inc: {
-xp: quantidade
-},
-$setOnInsert: {
-level: 0
-}
-},
-{
-upsert: true
-}
-);
-
-}
-
-export async function definirLevel(
-userId,
-level
-) {
-
-await xp.updateOne(
-{
-userId
-},
-{
-$set: {
-level
-}
-}
-);
-
-}
-
-export async function salvarConfigXP(
-dados
-) {
-
-await config.updateOne(
-{
-id: 'xp'
-},
-{
-$set: dados
-},
-{
-upsert: true
-}
-);
-
-}
+const CONFIG_PATH = './database/xpConfig.json';
 
 export async function pegarConfigXP() {
 
-return await config.findOne({
-id: 'xp'
-});
+try {
 
-  }
+return JSON.parse(
+fs.readFileSync(CONFIG_PATH, 'utf8')
+);
+
+} catch {
+
+return {
+xpCargo: {},
+xpLevels: {},
+cargos: {},
+canaisSemXP: [],
+cooldown: 60,
+canalLevel: null,
+mensagemLevel:
+'🎉 {user} subiu para o nível {level}!',
+mensagemCargo:
+'🏆 {user} recebeu o cargo {cargo}!'
+};
+
+}
+
+}
+
+export async function salvarConfigXP(config) {
+
+fs.writeFileSync(
+CONFIG_PATH,
+JSON.stringify(config, null, 2)
+);
+
+}
