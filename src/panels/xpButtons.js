@@ -37,8 +37,8 @@ const modal = new ModalBuilder()
 
 const input = new TextInputBuilder()
 .setCustomId('xp')
-.setLabel('XP necessário')
-.setStyle(TextInputStyle.Short)
+.setLabel('Ex: 1=100 (uma linha por nível)')
+.setStyle(TextInputStyle.Paragraph)
 .setRequired(true);
 
 modal.addComponents(
