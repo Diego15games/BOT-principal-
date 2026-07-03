@@ -68,3 +68,65 @@ upsert: true
 );
 
 }
+
+export async function definirXP(userId, xp) {
+
+await xpCollection.updateOne(
+{ userId },
+{
+$set: { xp }
+},
+{
+upsert: true
+}
+);
+
+}
+
+export async function removerXP(userId, quantidade) {
+
+const dados = await pegarXP(userId);
+
+const atual = dados?.xp || 0;
+
+const novo = Math.max(0, atual - quantidade);
+
+await xpCollection.updateOne(
+{ userId },
+{
+$set: { xp: novo }
+},
+{
+upsert: true
+}
+);
+
+}
+
+export async function adicionarXPManual(userId, quantidade) {
+
+await xpCollection.updateOne(
+{ userId },
+{
+$inc: { xp: quantidade }
+},
+{
+upsert: true
+}
+);
+
+}
+
+export async function definirNivel(userId, nivel) {
+
+await xpCollection.updateOne(
+{ userId },
+{
+$set: { level: nivel }
+},
+{
+upsert: true
+}
+);
+
+  }
