@@ -130,3 +130,39 @@ upsert: true
 );
 
   }
+
+export async function pegarXP(userId) {
+    return await xp.findOne({ userId });
+}
+
+export async function adicionarXP(userId, quantidade) {
+    await xp.updateOne(
+        { userId },
+        {
+            $inc: { xp: quantidade },
+            $setOnInsert: {
+                level: 0
+            }
+        },
+        { upsert: true }
+    );
+}
+
+export async function removerXP(userId, quantidade) {
+    await xp.updateOne(
+        { userId },
+        {
+            $inc: { xp: -quantidade }
+        }
+    );
+}
+
+export async function definirLevel(userId, level) {
+    await xp.updateOne(
+        { userId },
+        {
+            $set: { level }
+        },
+        { upsert: true }
+    );
+}
