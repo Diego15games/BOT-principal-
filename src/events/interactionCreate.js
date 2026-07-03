@@ -1162,29 +1162,45 @@ interaction.customId ===
 'xp_level_modal'
 ) {
 
-const xp =
-Number(
+const texto =
 interaction.fields.getTextInputValue(
 'xp'
-)
 );
+
+const xpLevels = {};
+
+texto
+.split('\n')
+.forEach(item => {
+
+const [level, xp] =
+item.split('=');
+
+if (!level || !xp) return;
+
+xpLevels[
+level.trim()
+] = Number(
+xp.trim()
+);
+
+});
 
 const config =
 await pegarConfigXP() || {};
 
-config.xpLevels = {
-1: xp
-};
+config.xpLevels =
+xpLevels;
 
 await salvarConfigXP(config);
 
 return interaction.reply({
 content:
-'✅ XP por level atualizado.',
+'✅ Tabela de XP salva com sucesso.',
 ephemeral: true
 });
 
-}
+  }
 
 // =========================
 // SALVAR COOLDOWN 
