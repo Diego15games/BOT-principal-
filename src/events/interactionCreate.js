@@ -169,6 +169,144 @@ return interaction.showModal(modal);
 }
 
 if (
+interaction.isButton() &&
+interaction.customId === "registro_logs"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_logs_modal")
+.setTitle("Canal de Logs");
+
+const input = new TextInputBuilder()
+.setCustomId("canal")
+.setLabel("ID do canal")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_titulo"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_titulo_modal")
+.setTitle("Título do Painel");
+
+const input = new TextInputBuilder()
+.setCustomId("titulo")
+.setLabel("Título")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_descricao"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_descricao_modal")
+.setTitle("Descrição");
+
+const input = new TextInputBuilder()
+.setCustomId("descricao")
+.setLabel("Descrição")
+.setStyle(TextInputStyle.Paragraph)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_banner"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_banner_modal")
+.setTitle("Banner");
+
+const input = new TextInputBuilder()
+.setCustomId("banner")
+.setLabel("URL da imagem")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_cor"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_cor_modal")
+.setTitle("Cor");
+
+const input = new TextInputBuilder()
+.setCustomId("cor")
+.setLabel("Hex (#57F287)")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_msg"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_msg_modal")
+.setTitle("Mensagem de Sucesso");
+
+const input = new TextInputBuilder()
+.setCustomId("mensagem")
+.setLabel("Mensagem")
+.setStyle(TextInputStyle.Paragraph)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+  
+if (
 interaction.isModalSubmit() &&
 interaction.customId === "registro_cargo_modal"
 ) {
