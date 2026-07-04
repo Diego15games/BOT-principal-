@@ -513,7 +513,7 @@ const config = await pegarConfig();
 
 if (!config?.canalRegistro) {
 return interaction.reply({
-content: "❌ Configure primeiro o canal de registro.",
+content: "❌ Configure o canal de registro primeiro.",
 ephemeral: true
 });
 }
@@ -530,21 +530,35 @@ ephemeral: true
 });
 }
 
-const embed = new EmbedBuilder()
-.setColor("#57F287")
-.setTitle("📋 Registro")
+const embed =
+new EmbedBuilder()
+.setColor(config.corRegistro || "#57F287")
+.setTitle(config.tituloRegistro || "📋 Registro")
 .setDescription(
+config.descricaoRegistro ||
 "Clique no botão abaixo para iniciar seu registro."
 );
+
+if (config.bannerRegistro) {
+embed.setImage(config.bannerRegistro);
+}
 
 const row =
 new ActionRowBuilder()
 .addComponents(
+
 new ButtonBuilder()
 .setCustomId("registro_criar")
 .setLabel("Registrar")
 .setEmoji("📝")
-.setStyle(ButtonStyle.Success)
+.setStyle(ButtonStyle.Success),
+
+new ButtonBuilder()
+.setCustomId("registro_atualizar")
+.setLabel("Atualizar Registro")
+.setEmoji("🔄")
+.setStyle(ButtonStyle.Primary)
+
 );
 
 await canal.send({
@@ -552,13 +566,29 @@ embeds: [embed],
 components: [row]
 });
 
+if (config.logsRegistro) {
+
+const logs =
+interaction.guild.channels.cache.get(
+config.logsRegistro
+);
+
+if (logs) {
+
+await logs.send(
+`📤 ${interaction.user} enviou um novo painel de registro.`
+).catch(() => {});
+
+}
+
+}
+
 return interaction.reply({
 content: "✅ Painel enviado com sucesso.",
 ephemeral: true
 });
 
 }
-
 if (
 interaction.isButton() &&
 interaction.customId === "painel_ticket"
