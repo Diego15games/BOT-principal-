@@ -19,6 +19,7 @@ atualizarRegistro,
 pegarRegistro,
 estaRegistrado,
 pegarConfig,
+salvarConfig,
 salvarRegistroPendente,
 pegarRegistroPendente,
 removerRegistroPendente
@@ -84,6 +85,11 @@ painelPrincipal()
 );
 }
 
+// =========================
+// P REGISTRO
+// =========================
+  
+  
 if (
 interaction.isButton() &&
 interaction.customId === "painel_registro"
@@ -91,6 +97,141 @@ interaction.customId === "painel_registro"
 return interaction.update(
 painelRegistro()
 );
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_cargo"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_cargo_modal")
+.setTitle("Cargo Registrado");
+
+const input = new TextInputBuilder()
+.setCustomId("cargo")
+.setLabel("ID do cargo")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+  }
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_nao"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_nao_modal")
+.setTitle("Cargo Não Registrado");
+
+const input = new TextInputBuilder()
+.setCustomId("cargo")
+.setLabel("ID do cargo")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_canal"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_canal_modal")
+.setTitle("Canal de Registro");
+
+const input = new TextInputBuilder()
+.setCustomId("canal")
+.setLabel("ID do canal")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_cargo_modal"
+) {
+
+const cargo =
+interaction.fields.getTextInputValue("cargo");
+
+const config =
+await pegarConfig() || {};
+
+config.cargoRegistrado = cargo;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Cargo registrado salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_nao_modal"
+) {
+
+const cargo =
+interaction.fields.getTextInputValue("cargo");
+
+const config =
+await pegarConfig() || {};
+
+config.cargoNaoRegistrado = cargo;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Cargo não registrado salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_canal_modal"
+) {
+
+const canal =
+interaction.fields.getTextInputValue("canal");
+
+const config =
+await pegarConfig() || {};
+
+config.canalRegistro = canal;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Canal de registro salvo.",
+ephemeral: true
+});
+
 }
 
 if (
