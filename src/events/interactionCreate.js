@@ -34,6 +34,7 @@ import { painelPrincipal } from '../panels/painelPrincipal.js';
 import { painelXP } from '../panels/painelXP.js';
 import { painelRegistro } from '../panels/painelRegistro.js';
 import { painelRegistro2 } from "../panels/painelRegistro2.js";
+import { painelRegistro3 } from "../panels/painelRegistro3.js";
 import { painelTicket } from '../panels/painelTicket.js';
 import { painelStaff } from '../panels/painelStaff.js';
 import { painelGeral } from '../panels/painelGeral.js';
@@ -106,6 +107,15 @@ interaction.customId === "registro_pagina2"
 ) {
 return interaction.update(
 painelRegistro2()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_pagina3"
+) {
+return interaction.update(
+painelRegistro3()
 );
 }
   
