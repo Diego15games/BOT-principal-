@@ -77,6 +77,12 @@ new ButtonBuilder()
 
 );
 
+new ButtonBuilder()
+.setCustomId("registro_pagina3")
+.setLabel("Próxima Página")
+.setEmoji("➡️")
+.setStyle(ButtonStyle.Primary)
+
 return {
 
 embeds:[embed],
