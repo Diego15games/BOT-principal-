@@ -236,6 +236,61 @@ ephemeral: true
 
 if (
 interaction.isButton() &&
+interaction.customId === "registro_enviar"
+) {
+
+const config = await pegarConfig();
+
+if (!config?.canalRegistro) {
+return interaction.reply({
+content: "❌ Configure primeiro o canal de registro.",
+ephemeral: true
+});
+}
+
+const canal =
+interaction.guild.channels.cache.get(
+config.canalRegistro
+);
+
+if (!canal) {
+return interaction.reply({
+content: "❌ Canal não encontrado.",
+ephemeral: true
+});
+}
+
+const embed = new EmbedBuilder()
+.setColor("#57F287")
+.setTitle("📋 Registro")
+.setDescription(
+"Clique no botão abaixo para iniciar seu registro."
+);
+
+const row =
+new ActionRowBuilder()
+.addComponents(
+new ButtonBuilder()
+.setCustomId("registro_criar")
+.setLabel("Registrar")
+.setEmoji("📝")
+.setStyle(ButtonStyle.Success)
+);
+
+await canal.send({
+embeds: [embed],
+components: [row]
+});
+
+return interaction.reply({
+content: "✅ Painel enviado com sucesso.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isButton() &&
 interaction.customId === "painel_ticket"
 ) {
 return interaction.update(
