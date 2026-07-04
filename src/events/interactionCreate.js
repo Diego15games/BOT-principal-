@@ -101,6 +101,15 @@ painelRegistro()
 
 if (
 interaction.isButton() &&
+interaction.customId === "registro_pagina2"
+) {
+return interaction.update(
+painelRegistro2()
+);
+}
+  
+if (
+interaction.isButton() &&
 interaction.customId === "registro_cargo"
 ) {
 
