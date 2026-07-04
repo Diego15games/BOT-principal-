@@ -71,22 +71,54 @@ if (
 interaction.isButton() &&
 interaction.customId === 'painel_xp'
 ) {
-
 return interaction.update(
 painelXP()
 );
-
 }
 
 if (
 interaction.isButton() &&
 interaction.customId === 'painel_principal'
 ) {
-
 return interaction.update(
 painelPrincipal()
 );
+}
 
+if (
+interaction.isButton() &&
+interaction.customId === "painel_registro"
+) {
+return interaction.update(
+painelRegistro()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_ticket"
+) {
+return interaction.update(
+painelTicket()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_staff"
+) {
+return interaction.update(
+painelStaff()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_geral"
+) {
+return interaction.update(
+painelGeral()
+);
 }
 
 // =========================
