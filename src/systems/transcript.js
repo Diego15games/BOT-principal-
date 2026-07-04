@@ -1,63 +1,101 @@
-import fs from 'fs';
+import { db } from './database.js';
 
-export async function createTranscript(channel) {
+const xp = db.collection('xp');
+const config = db.collection('xpConfig');
 
-const messages = await channel.messages.fetch({
-limit: 100
-});
+// =========================
+// XP DO USUÁRIO
+// =========================
 
-const sorted =
-[...messages.values()]
-.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+export async function pegarXP(userId) {
 
-let html = `
+    return await xp.findOne({ userId });
 
-<!DOCTYPE html><html>
-<head>
-<meta charset="utf-8">
-<title>Transcript</title>
-<style>
-body{
-background:#2b2d31;
-color:white;
-font-family:Arial;
-padding:20px;
 }
-.message{
-background:#1e1f22;
-padding:10px;
-margin:10px 0;
-border-radius:8px;
+
+export async function adicionarXP(userId, quantidade) {
+
+    await xp.updateOne(
+        { userId },
+        {
+            $inc: { xp: quantidade },
+            $setOnInsert: {
+                level: 0
+            }
+        },
+        {
+            upsert: true
+        }
+    );
+
 }
-.author{
-color:#57f287;
-font-weight:bold;
+
+export async function removerXP(userId, quantidade) {
+
+    await xp.updateOne(
+        { userId },
+        {
+            $inc: { xp: -quantidade }
+        },
+        {
+            upsert: true
+        }
+    );
+
 }
-.time{
-font-size:12px;
-color:#999;
+
+export async function definirXP(userId, quantidade) {
+
+    await xp.updateOne(
+        { userId },
+        {
+            $set: { xp: quantidade }
+        },
+        {
+            upsert: true
+        }
+    );
+
 }
-</style>
-</head>
-<body><h1>Transcript Ticket</h1>
-`;for (const msg of sorted) {
 
-html += `
+export async function definirLevel(userId, level) {
 
-<div class="message">
-<div class="author">${msg.author.tag}</div>
-<div class="time">${new Date(msg.createdTimestamp).toLocaleString('pt-BR')}</div>
-<div>${msg.content || '(sem texto)'}</div>
-</div>
-`;
-  }html += `
+    await xp.updateOne(
+        { userId },
+        {
+            $set: { level }
+        },
+        {
+            upsert: true
+        }
+    );
 
-</body>
-</html>
-`;const path =
-"./src/transcripts/${channel.id}.html";
-
-fs.writeFileSync(path, html);
-
-return path;
 }
+
+// =========================
+// CONFIGURAÇÃO
+// =========================
+
+export async function pegarConfigXP() {
+
+    return await config.findOne({
+        id: 'xp'
+    });
+
+}
+
+export async function salvarConfigXP(dados) {
+
+    await config.updateOne(
+        {
+            id: 'xp'
+        },
+        {
+            $set: dados
+        },
+        {
+            upsert: true
+        }
+    );
+
+          }
