@@ -373,6 +373,138 @@ ephemeral: true
 }
 
 if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_logs_modal"
+) {
+
+const canal =
+interaction.fields.getTextInputValue("canal");
+
+const config =
+await pegarConfig() || {};
+
+config.logsRegistro = canal;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Canal de logs salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_titulo_modal"
+) {
+
+const titulo =
+interaction.fields.getTextInputValue("titulo");
+
+const config =
+await pegarConfig() || {};
+
+config.tituloRegistro = titulo;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Título salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_descricao_modal"
+) {
+
+const descricao =
+interaction.fields.getTextInputValue("descricao");
+
+const config =
+await pegarConfig() || {};
+
+config.descricaoRegistro = descricao;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Descrição salva.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_banner_modal"
+) {
+
+const banner =
+interaction.fields.getTextInputValue("banner");
+
+const config =
+await pegarConfig() || {};
+
+config.bannerRegistro = banner;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Banner salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_cor_modal"
+) {
+
+const cor =
+interaction.fields.getTextInputValue("cor");
+
+const config =
+await pegarConfig() || {};
+
+config.corRegistro = cor;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Cor salva.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_msg_modal"
+) {
+
+const mensagem =
+interaction.fields.getTextInputValue("mensagem");
+
+const config =
+await pegarConfig() || {};
+
+config.mensagemRegistro = mensagem;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Mensagem salva.",
+ephemeral: true
+});
+
+}
+
+if (
 interaction.isButton() &&
 interaction.customId === "registro_enviar"
 ) {
