@@ -29,13 +29,12 @@ salvarConfigXP,
 pegarConfigXP
 } from '../systems/xp.js';
 
-import {
-painelPrincipal
-} from '../panels/painelPrincipal.js';
-
-import {
-painelXP
-} from '../panels/painelXP.js';
+import { painelPrincipal } from '../panels/painelPrincipal.js';
+import { painelXP } from '../panels/painelXP.js';
+import { painelRegistro } from '../panels/painelRegistro.js';
+import { painelTicket } from '../panels/painelTicket.js';
+import { painelStaff } from '../panels/painelStaff.js';
+import { painelGeral } from '../panels/painelGeral.js';
 
 import {
 executarBotoesXP
