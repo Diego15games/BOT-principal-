@@ -3,63 +3,76 @@ EmbedBuilder,
 ActionRowBuilder,
 ButtonBuilder,
 ButtonStyle
-} from "discord.js";
+} from 'discord.js';
 
 export function painelRegistro() {
 
-const embed = new EmbedBuilder()
-.setColor("#57F287")
-.setTitle("📝 Sistema de Registro")
-.setDescription("Configure o sistema de registro.");
+const embed =
+new EmbedBuilder()
+.setColor('#57F287')
+.setTitle('📝 Sistema de Registro')
+.setDescription(
+'Configure todo o sistema de registro pelos botões abaixo.'
+);
 
-const row1 = new ActionRowBuilder()
+const row1 =
+new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
-.setCustomId("registro_cargo")
-.setLabel("Cargo Registrado")
-.setEmoji("✅")
+.setCustomId('registro_cargo')
+.setLabel('Cargo Registrado')
+.setEmoji('🎭')
 .setStyle(ButtonStyle.Success),
 
 new ButtonBuilder()
-.setCustomId("registro_naoreg")
-.setLabel("Cargo Não Registrado")
-.setEmoji("❌")
+.setCustomId('registro_nao')
+.setLabel('Cargo Não Registrado')
+.setEmoji('🚫')
 .setStyle(ButtonStyle.Danger)
 
 );
 
-const row2 = new ActionRowBuilder()
+const row2 =
+new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
-.setCustomId("registro_canal")
-.setLabel("Canal Registro")
-.setEmoji("📁")
-.setStyle(ButtonStyle.Secondary),
+.setCustomId('registro_canal')
+.setLabel('Canal Registro')
+.setEmoji('📁')
+.setStyle(ButtonStyle.Primary),
 
 new ButtonBuilder()
-.setCustomId("registro_painel")
-.setLabel("Painel Registro")
-.setEmoji("📝")
-.setStyle(ButtonStyle.Primary)
+.setCustomId('registro_enviar')
+.setLabel('Enviar Painel')
+.setEmoji('📤')
+.setStyle(ButtonStyle.Secondary)
 
 );
 
-const row3 = new ActionRowBuilder()
+const row3 =
+new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
-.setCustomId("painel_principal")
-.setLabel("Voltar")
-.setEmoji("⬅️")
+.setCustomId('painel_principal')
+.setLabel('Voltar')
+.setEmoji('⬅️')
 .setStyle(ButtonStyle.Danger)
 
 );
 
 return {
+
 embeds:[embed],
-components:[row1,row2,row3]
+
+components:[
+row1,
+row2,
+row3
+]
+
 };
 
 }
