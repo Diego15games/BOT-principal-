@@ -22,7 +22,9 @@ pegarConfig,
 salvarConfig,
 salvarRegistroPendente,
 pegarRegistroPendente,
-removerRegistroPendente
+removerRegistroPendente,
+salvarMensagemPainel,
+pegarMensagemPainel
 } from '../systems/registro.js';
 
 import {
