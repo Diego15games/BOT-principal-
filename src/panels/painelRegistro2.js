@@ -61,6 +61,17 @@ const row4 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
+.setCustomId("painel_principal")
+.setLabel("🏠 Painel Principal")
+.setStyle(ButtonStyle.Danger)
+
+);
+  
+
+const row5 = new ActionRowBuilder()
+.addComponents(
+
+new ButtonBuilder()
 .setCustomId("painel_registro")
 .setLabel("⬅️ Página Anterior")
 .setStyle(ButtonStyle.Primary),
@@ -70,16 +81,6 @@ new ButtonBuilder()
 .setLabel("Próxima Página")
 .setEmoji("➡️")
 .setStyle(ButtonStyle.Success)
-
-);
-
-const row5 = new ActionRowBuilder()
-.addComponents(
-
-new ButtonBuilder()
-.setCustomId("painel_principal")
-.setLabel("🏠 Painel Principal")
-.setStyle(ButtonStyle.Danger)
 
 );
 
