@@ -63,7 +63,13 @@ const row4 = new ActionRowBuilder()
 new ButtonBuilder()
 .setCustomId("painel_registro")
 .setLabel("⬅️ Página Anterior")
-.setStyle(ButtonStyle.Primary)
+.setStyle(ButtonStyle.Primary),
+
+new ButtonBuilder()
+.setCustomId("registro_pagina3")
+.setLabel("Próxima Página")
+.setEmoji("➡️")
+.setStyle(ButtonStyle.Success)
 
 );
 
@@ -76,12 +82,6 @@ new ButtonBuilder()
 .setStyle(ButtonStyle.Danger)
 
 );
-
-new ButtonBuilder()
-.setCustomId("registro_pagina3")
-.setLabel("Próxima Página")
-.setEmoji("➡️")
-.setStyle(ButtonStyle.Primary)
 
 return {
 
