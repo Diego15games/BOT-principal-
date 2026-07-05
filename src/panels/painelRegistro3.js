@@ -35,7 +35,7 @@ const row2 = new ActionRowBuilder()
 new ButtonBuilder()
 .setCustomId("painel_principal")
 .setLabel("🏠 Painel Principal")
-.setStyle(ButtonStyle.Danger)
+.setStyle(ButtonStyle.Danger),
 
 new ButtonBuilder()
 .setCustomId("painel_registro2")
@@ -46,7 +46,7 @@ new ButtonBuilder()
 .setCustomId("registro_enviar")
 .setLabel("Enviar Painel")
 .setEmoji("📤")
-.setStyle(ButtonStyle.Success),
+.setStyle(ButtonStyle.Success)
 
 );
 
