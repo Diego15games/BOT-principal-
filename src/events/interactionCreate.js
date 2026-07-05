@@ -118,6 +118,15 @@ return interaction.update(
 painelRegistro3()
 );
 }
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_registro2"
+) {
+return interaction.update(
+painelRegistro2()
+);
+}
   
 if (
 interaction.isButton() &&
@@ -569,18 +578,25 @@ new ActionRowBuilder()
 
 new ButtonBuilder()
 .setCustomId("registro_criar")
-.setLabel("Registrar")
-.setEmoji("📝")
+.setLabel(
+config.botaoRegistrar || "Registrar"
+)
+.setEmoji(
+config.emojiRegistrar || "📝"
+)
 .setStyle(ButtonStyle.Success),
 
 new ButtonBuilder()
 .setCustomId("registro_atualizar")
-.setLabel("Atualizar Registro")
-.setEmoji("🔄")
+.setLabel(
+config.botaoAtualizar || "Atualizar Registro"
+)
+.setEmoji(
+config.emojiAtualizar || "🔄"
+)
 .setStyle(ButtonStyle.Primary)
 
 );
-
 await canal.send({
 embeds: [embed],
 components: [row]
