@@ -9,7 +9,7 @@ export function painelRegistro2() {
 
 const embed = new EmbedBuilder()
 .setColor("#57F287")
-.setTitle("📝 Sistema de Registro (2/2)")
+.setTitle("📝 Sistema de Registro (2/3)")
 .setDescription("Configurações visuais do painel.");
 
 const row1 = new ActionRowBuilder()
