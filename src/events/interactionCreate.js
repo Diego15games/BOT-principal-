@@ -725,10 +725,34 @@ config.emojiAtualizar || "🔄"
 .setStyle(ButtonStyle.Primary)
 
 );
-await canal.send({
+const mensagemId = await pegarMensagemPainel();
+
+if (mensagemId) {
+
+try {
+
+const mensagem = await canal.messages.fetch(mensagemId);
+
+await mensagem.edit({
 embeds: [embed],
 components: [row]
 });
+
+return interaction.reply({
+content: "✅ Painel atualizado com sucesso.",
+ephemeral: true
+});
+
+} catch {}
+
+}
+
+const mensagem = await canal.send({
+embeds: [embed],
+components: [row]
+});
+
+await salvarMensagemPainel(mensagem.id);
 
 if (config.logsRegistro) {
 
