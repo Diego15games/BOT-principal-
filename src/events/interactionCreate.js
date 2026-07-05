@@ -334,6 +334,132 @@ new ActionRowBuilder().addComponents(input)
 return interaction.showModal(modal);
 
 }
+
+// =========================
+// BOTÃO REGISTRAR
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_botao_registrar"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_botao_registrar_modal")
+.setTitle("Editar Botão Registrar");
+
+const nome = new TextInputBuilder()
+.setCustomId("nome")
+.setLabel("Nome do botão")
+.setPlaceholder("Registrar")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+const emoji = new TextInputBuilder()
+.setCustomId("emoji")
+.setLabel("Emoji")
+.setPlaceholder("📝")
+.setStyle(TextInputStyle.Short)
+.setRequired(false);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(nome),
+new ActionRowBuilder().addComponents(emoji)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+// BOTÃO ATUALIZAR
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "registro_botao_atualizar"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("registro_botao_atualizar_modal")
+.setTitle("Editar Botão Atualizar");
+
+const nome = new TextInputBuilder()
+.setCustomId("nome")
+.setLabel("Nome do botão")
+.setPlaceholder("Atualizar Registro")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+const emoji = new TextInputBuilder()
+.setCustomId("emoji")
+.setLabel("Emoji")
+.setPlaceholder("🔄")
+.setStyle(TextInputStyle.Short)
+.setRequired(false);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(nome),
+new ActionRowBuilder().addComponents(emoji)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+// SALVAR BOTÃO REGISTRAR
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_botao_registrar_modal"
+) {
+
+const config =
+await pegarConfig() || {};
+
+config.botaoRegistrar =
+interaction.fields.getTextInputValue("nome");
+
+config.emojiRegistrar =
+interaction.fields.getTextInputValue("emoji") || "📝";
+
+await salvarConfig(config);
+
+return interaction.reply({
+content:"✅ Botão Registrar atualizado com sucesso.",
+ephemeral:true
+});
+
+}
+
+// =========================
+// SALVAR BOTÃO ATUALIZAR
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "registro_botao_atualizar_modal"
+) {
+
+const config =
+await pegarConfig() || {};
+
+config.botaoAtualizar =
+interaction.fields.getTextInputValue("nome");
+
+config.emojiAtualizar =
+interaction.fields.getTextInputValue("emoji") || "🔄";
+
+await salvarConfig(config);
+
+return interaction.reply({
+content:"✅ Botão Atualizar atualizado com sucesso.",
+ephemeral:true
+});
+
+  }
   
 if (
 interaction.isModalSubmit() &&
