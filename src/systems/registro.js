@@ -134,3 +134,21 @@ userId
 });
 
 }
+
+export async function salvarMensagemPainel(messageId) {
+
+const config = await pegarConfig() || {};
+
+config.painelRegistroId = messageId;
+
+await salvarConfig(config);
+
+}
+
+export async function pegarMensagemPainel() {
+
+const config = await pegarConfig();
+
+return config?.painelRegistroId;
+
+  }
