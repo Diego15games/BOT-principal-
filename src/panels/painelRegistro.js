@@ -51,14 +51,9 @@ const row3 = new ActionRowBuilder()
 
 new ButtonBuilder()
 .setCustomId("painel_principal")
-.setLabel("Voltar")
+.setLabel("Voltar Painel Principal")
 .setEmoji("⬅️")
-.setStyle(ButtonStyle.Danger)
-
-);
-
-const row4 = new ActionRowBuilder()
-.addComponents(
+.setStyle(ButtonStyle.Danger),
 
 new ButtonBuilder()
 .setCustomId("registro_pagina2")
@@ -76,7 +71,6 @@ components:[
 row1,
 row2,
 row3,
-row4,
 ]
 
 };
