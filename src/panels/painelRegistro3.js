@@ -33,14 +33,20 @@ const row2 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
+.setCustomId("painel_principal")
+.setLabel("🏠 Painel Principal")
+.setStyle(ButtonStyle.Danger)
+
+new ButtonBuilder()
 .setCustomId("painel_registro2")
 .setLabel("⬅️ Página Anterior")
 .setStyle(ButtonStyle.Primary),
 
 new ButtonBuilder()
-.setCustomId("painel_principal")
-.setLabel("🏠 Painel Principal")
-.setStyle(ButtonStyle.Danger)
+.setCustomId("registro_enviar")
+.setLabel("Enviar Painel")
+.setEmoji("📤")
+.setStyle(ButtonStyle.Success),
 
 );
 
