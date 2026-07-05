@@ -62,7 +62,7 @@ const row4 = new ActionRowBuilder()
 
 new ButtonBuilder()
 .setCustomId("painel_principal")
-.setLabel("🏠 Painel Principal")
+.setLabel("🏠 Voltar Painel Principal")
 .setStyle(ButtonStyle.Danger)
 
 );
