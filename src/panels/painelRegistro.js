@@ -9,7 +9,7 @@ export function painelRegistro() {
 
 const embed = new EmbedBuilder()
 .setColor("#57F287")
-.setTitle("📝 Sistema de Registro (1/2)")
+.setTitle("📝 Sistema de Registro (1/3)")
 .setDescription("Configure o sistema de registro.");
 
 const row1 = new ActionRowBuilder()
@@ -50,10 +50,10 @@ const row3 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
-.setCustomId("registro_enviar")
-.setLabel("Enviar Painel")
-.setEmoji("📤")
-.setStyle(ButtonStyle.Success)
+.setCustomId("painel_principal")
+.setLabel("Voltar")
+.setEmoji("⬅️")
+.setStyle(ButtonStyle.Danger)
 
 );
 
@@ -68,17 +68,6 @@ new ButtonBuilder()
 
 );
 
-const row5 = new ActionRowBuilder()
-.addComponents(
-
-new ButtonBuilder()
-.setCustomId("painel_principal")
-.setLabel("Voltar")
-.setEmoji("⬅️")
-.setStyle(ButtonStyle.Danger)
-
-);
-
 return {
 
 embeds:[embed],
@@ -88,7 +77,6 @@ row1,
 row2,
 row3,
 row4,
-row5
 ]
 
 };
