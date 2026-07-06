@@ -59,7 +59,7 @@ new ButtonBuilder()
 .setCustomId("registro_pagina2")
 .setLabel("Próxima Página")
 .setEmoji("➡️")
-.setStyle(ButtonStyle.Primary)
+.setStyle(ButtonStyle.Success)
 
 );
 
