@@ -102,6 +102,123 @@ painelTicket2()
 }
 
 // =========================
+//
+// TICKET - NAVEGAÇÃO
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_ticket"
+) {
+return interaction.update(
+painelTicket()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_pagina2"
+) {
+return interaction.update(
+painelTicket2()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_pagina3"
+) {
+return interaction.update(
+painelTicket3()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_ticket2"
+) {
+return interaction.update(
+painelTicket2()
+);
+}
+
+// =========================
+//
+// TICKET - BOTÕES
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_categoria"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_categoria_modal")
+.setTitle("Categoria dos Tickets");
+
+const input = new TextInputBuilder()
+.setCustomId("categoria")
+.setLabel("ID da categoria")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_staff"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_staff_modal")
+.setTitle("Cargo Staff");
+
+const input = new TextInputBuilder()
+.setCustomId("cargo")
+.setLabel("ID do cargo")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_logs"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_logs_modal")
+.setTitle("Canal de Logs");
+
+const input = new TextInputBuilder()
+.setCustomId("canal")
+.setLabel("ID do canal")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
 // PAINEL ADMINISTRATIVO
 // =========================
 
