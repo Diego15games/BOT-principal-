@@ -37,7 +37,7 @@ import { painelXP } from '../panels/painelXP.js';
 import { painelRegistro } from '../panels/painelRegistro.js';
 import { painelRegistro2 } from "../panels/painelRegistro2.js";
 import { painelRegistro3 } from "../panels/painelRegistro3.js";
-import { painelTicket } from '../panels/painelTicket.js";
+import { painelTicket } from '../panels/painelTicket.js';
 import { painelTicket2 } from "../panels/painelTicket2.js";
 import { painelTicket3 } from "../panels/painelTicket3.js";
 import { painelStaff } from '../panels/painelStaff.js';
