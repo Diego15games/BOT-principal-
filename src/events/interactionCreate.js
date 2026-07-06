@@ -738,6 +738,23 @@ embeds: [embed],
 components: [row]
 });
 
+if (config.logsRegistro) {
+
+const logs =
+interaction.guild.channels.cache.get(
+config.logsRegistro
+);
+
+if (logs) {
+
+await logs.send(
+`♻️ ${interaction.user} atualizou o painel de registro.`
+).catch(() => {});
+
+}
+
+}
+
 return interaction.reply({
 content: "✅ Painel atualizado com sucesso.",
 ephemeral: true
