@@ -663,6 +663,52 @@ ephemeral: true
 
 if (
 interaction.isButton() &&
+interaction.customId === "registro_preview"
+) {
+
+const config = await pegarConfig();
+
+const embed =
+new EmbedBuilder()
+.setColor(config?.corRegistro || "#57F287")
+.setTitle(config?.tituloRegistro || "📋 Registro")
+.setDescription(
+config?.descricaoRegistro ||
+"Clique no botão abaixo para iniciar seu registro."
+);
+
+if (config?.bannerRegistro) {
+embed.setImage(config.bannerRegistro);
+}
+
+const row =
+new ActionRowBuilder()
+.addComponents(
+
+new ButtonBuilder()
+.setCustomId("registro_criar")
+.setLabel(config?.botaoRegistrar || "Registrar")
+.setEmoji(config?.emojiRegistrar || "📝")
+.setStyle(ButtonStyle.Success),
+
+new ButtonBuilder()
+.setCustomId("registro_atualizar")
+.setLabel(config?.botaoAtualizar || "Atualizar Registro")
+.setEmoji(config?.emojiAtualizar || "🔄")
+.setStyle(ButtonStyle.Primary)
+
+);
+
+return interaction.reply({
+embeds: [embed],
+components: [row],
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isButton() &&
 interaction.customId === "registro_enviar"
 ) {
 
