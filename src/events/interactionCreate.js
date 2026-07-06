@@ -76,15 +76,6 @@ await executarBotoesXP(interaction)
   
 if (
 interaction.isButton() &&
-interaction.customId === "ticket_pagina"
-) {
-return interaction.update(
-painelTicket()
-);
-}
-
-if (
-interaction.isButton() &&
 interaction.customId === "ticket_pagina2"
 ) {
 return interaction.update(
@@ -94,10 +85,19 @@ painelTicket2()
 
 if (
 interaction.isButton() &&
-interaction.customId === "painel_ticket3"
+interaction.customId === "ticket_pagina3"
 ) {
 return interaction.update(
 painelTicket3()
+);
+}
+
+if (
+interaction.isButton() &&
+interaction.customId === "painel_ticket2"
+) {
+return interaction.update(
+painelTicket2()
 );
 }
 
