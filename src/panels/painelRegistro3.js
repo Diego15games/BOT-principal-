@@ -38,6 +38,12 @@ new ButtonBuilder()
 .setStyle(ButtonStyle.Danger),
 
 new ButtonBuilder()
+.setCustomId("registro_preview")
+.setLabel("Pré-visualização")
+.setEmoji("👀")
+.setStyle(ButtonStyle.Secondary),
+
+new ButtonBuilder()
 .setCustomId("painel_registro2")
 .setLabel("⬅️ Página Anterior")
 .setStyle(ButtonStyle.Primary),
