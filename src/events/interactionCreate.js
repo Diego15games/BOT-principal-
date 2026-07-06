@@ -76,10 +76,10 @@ await executarBotoesXP(interaction)
   
 if (
 interaction.isButton() &&
-interaction.customId === "ticket_pagina1"
+interaction.customId === "ticket_pagina"
 ) {
 return interaction.update(
-painelTicket2()
+painelTicket()
 );
 }
 
@@ -88,7 +88,7 @@ interaction.isButton() &&
 interaction.customId === "ticket_pagina2"
 ) {
 return interaction.update(
-painelTicket3()
+painelTicket2()
 );
 }
 
@@ -97,7 +97,7 @@ interaction.isButton() &&
 interaction.customId === "painel_ticket3"
 ) {
 return interaction.update(
-painelTicket2()
+painelTicket3()
 );
 }
 
