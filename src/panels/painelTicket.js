@@ -44,15 +44,15 @@ const row3 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
+.setCustomId("painel_principal")
+.setLabel("🏠 Painel Principal")
+.setStyle(ButtonStyle.Danger),
+
+new ButtonBuilder()
 .setCustomId("ticket_pagina2")
 .setLabel("Próxima Página")
 .setEmoji("➡️")
-.setStyle(ButtonStyle.Primary),
-
-new ButtonBuilder()
-.setCustomId("painel_principal")
-.setLabel("🏠 Painel Principal")
-.setStyle(ButtonStyle.Danger)
+.setStyle(ButtonStyle.Success)
 
 );
 
