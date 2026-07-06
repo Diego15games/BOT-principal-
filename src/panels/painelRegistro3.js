@@ -42,6 +42,11 @@ new ButtonBuilder()
 .setLabel("Pré-visualização")
 .setEmoji("👀")
 .setStyle(ButtonStyle.Secondary),
+  
+);
+
+const row3 = new ActionRowBuilder()
+.addComponents(
 
 new ButtonBuilder()
 .setCustomId("painel_registro2")
@@ -60,7 +65,8 @@ return {
 embeds:[embed],
 components:[
 row1,
-row2
+row2,
+row3
 ]
 };
 
