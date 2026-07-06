@@ -5,14 +5,14 @@ ButtonBuilder,
 ButtonStyle
 } from "discord.js";
 
-export function painelTicket(){
+export function painelTicket() {
 
-const embed=new EmbedBuilder()
-.setColor("#FEE75C")
-.setTitle("🎫 Sistema de Tickets")
-.setDescription("Configure os tickets.");
+const embed = new EmbedBuilder()
+.setColor("#57F287")
+.setTitle("🎫 Sistema de Tickets (1/3)")
+.setDescription("Configure o sistema de tickets.");
 
-const row1=new ActionRowBuilder()
+const row1 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
@@ -24,42 +24,45 @@ new ButtonBuilder()
 new ButtonBuilder()
 .setCustomId("ticket_staff")
 .setLabel("Cargo Staff")
-.setEmoji("🛡️")
+.setEmoji("👮")
 .setStyle(ButtonStyle.Success)
 
 );
 
-const row2=new ActionRowBuilder()
+const row2 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
 .setCustomId("ticket_logs")
 .setLabel("Canal Logs")
-.setEmoji("📋")
-.setStyle(ButtonStyle.Secondary),
-
-new ButtonBuilder()
-.setCustomId("ticket_painel")
-.setLabel("Enviar Painel")
-.setEmoji("📨")
+.setEmoji("📜")
 .setStyle(ButtonStyle.Secondary)
 
 );
 
-const row3=new ActionRowBuilder()
+const row3 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
+.setCustomId("ticket_pagina2")
+.setLabel("Próxima Página")
+.setEmoji("➡️")
+.setStyle(ButtonStyle.Primary),
+
+new ButtonBuilder()
 .setCustomId("painel_principal")
-.setLabel("Voltar")
-.setEmoji("⬅️")
+.setLabel("🏠 Painel Principal")
 .setStyle(ButtonStyle.Danger)
 
 );
 
-return{
-embeds:[embed],
-components:[row1,row2,row3]
+return {
+embeds: [embed],
+components: [
+row1,
+row2,
+row3
+]
 };
 
 }
