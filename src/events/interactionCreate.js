@@ -219,6 +219,357 @@ return interaction.showModal(modal);
 }
 
 // =========================
+//
+// TICKET - SALVAR CONFIG (PARTE 1)
+//
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_categoria_modal"
+) {
+
+const categoria =
+interaction.fields.getTextInputValue("categoria");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketCategoria = categoria;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Categoria salva.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_staff_modal"
+) {
+
+const cargo =
+interaction.fields.getTextInputValue("cargo");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketStaff = cargo;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Cargo da Staff salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_logs_modal"
+) {
+
+const canal =
+interaction.fields.getTextInputValue("canal");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketLogs = canal;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Canal de logs salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_titulo_modal"
+) {
+
+const titulo =
+interaction.fields.getTextInputValue("titulo");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketTitulo = titulo;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Título salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_descricao_modal"
+) {
+
+const descricao =
+interaction.fields.getTextInputValue("descricao");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketDescricao = descricao;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Descrição salva.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_banner_modal"
+) {
+
+const banner =
+interaction.fields.getTextInputValue("banner");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketBanner = banner;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Banner salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_cor_modal"
+) {
+
+const cor =
+interaction.fields.getTextInputValue("cor");
+
+const config =
+await pegarConfig() || {};
+
+// =========================
+//
+// TICKET - SALVAR CONFIG (PARTE 2)
+//
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_botao_modal"
+) {
+
+const botao =
+interaction.fields.getTextInputValue("botao");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketBotao = botao;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Nome do botão salvo.",
+ephemeral: true
+});
+
+}
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_emoji_modal"
+) {
+
+const emoji =
+interaction.fields.getTextInputValue("emoji");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketEmoji = emoji;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Emoji salvo.",
+ephemeral: true
+});
+
+}
+
+// =========================
+//
+// TICKET - PRÉ-VISUALIZAÇÃO
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_preview"
+) {
+
+const config = await pegarConfig();
+
+const embed = new EmbedBuilder()
+.setColor(config?.ticketCor || "#57F287")
+.setTitle(config?.ticketTitulo || "🎫 Abrir Ticket")
+.setDescription(
+config?.ticketDescricao ||
+"Clique no botão abaixo para abrir um ticket."
+);
+
+if (config?.ticketBanner) {
+embed.setImage(config.ticketBanner);
+}
+
+const row =
+new ActionRowBuilder()
+.addComponents(
+
+new ButtonBuilder()
+.setCustomId("open_ticket")
+.setLabel(
+config?.ticketBotao || "Abrir Ticket"
+)
+.setEmoji(
+config?.ticketEmoji || "🎫"
+)
+.setStyle(ButtonStyle.Primary)
+
+);
+
+return interaction.reply({
+embeds: [embed],
+components: [row],
+ephemeral: true
+});
+
+}
+
+// =========================
+//
+// TICKET - ENVIAR PAINEL
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_enviar"
+) {
+
+const config = await pegarConfig();
+
+if (!config?.ticketCategoria) {
+return interaction.reply({
+content: "❌ Configure a categoria primeiro.",
+ephemeral: true
+});
+}
+
+const canal =
+interaction.guild.channels.cache.get(
+config.ticketCategoria
+);
+
+if (!canal) {
+return interaction.reply({
+content: "❌ Canal não encontrado.",
+ephemeral: true
+});
+}
+
+const embed =
+new EmbedBuilder()
+.setColor(config.ticketCor || "#57F287")
+.setTitle(config.ticketTitulo || "🎫 Abrir Ticket")
+.setDescription(
+config.ticketDescricao ||
+"Clique no botão abaixo para abrir um ticket."
+);
+
+if (config.ticketBanner) {
+embed.setImage(config.ticketBanner);
+}
+
+const row =
+new ActionRowBuilder()
+.addComponents(
+
+new ButtonBuilder()
+.setCustomId("open_ticket")
+.setLabel(
+config.ticketBotao || "Abrir Ticket"
+)
+.setEmoji(
+config.ticketEmoji || "🎫"
+)
+.setStyle(ButtonStyle.Primary)
+
+);
+
+const mensagemId =
+config.ticketPainelId;
+
+if (mensagemId) {
+
+try {
+
+const mensagem =
+await canal.messages.fetch(mensagemId);
+
+await mensagem.edit({
+embeds:[embed],
+components:[row]
+});
+
+return interaction.reply({
+content:"✅ Painel atualizado com sucesso.",
+ephemeral:true
+});
+
+} catch {}
+
+}
+
+const mensagem =
+await canal.send({
+embeds:[embed],
+components:[row]
+});
+
+config.ticketPainelId =
+mensagem.id;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content:"✅ Painel enviado com sucesso.",
+ephemeral:true
+});
+
+}
+  
+// =========================
 // PAINEL ADMINISTRATIVO
 // =========================
 
