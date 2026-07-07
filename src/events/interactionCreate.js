@@ -220,6 +220,35 @@ return interaction.showModal(modal);
 
 // =========================
 //
+// TICKET - CANAL DO PAINEL
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_canal"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_canal_modal")
+.setTitle("Canal do Painel");
+
+const input = new TextInputBuilder()
+.setCustomId("canal")
+.setLabel("ID do canal")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+//
 // TICKET - SALVAR CONFIG (PARTE 1)
 //
 // =========================
@@ -246,6 +275,34 @@ ephemeral: true
 
 }
 
+// =========================
+//
+// TICKET - SALVAR CANAL DO PAINEL
+//
+// =========================
+
+if (
+interaction.isModalSubmit() &&
+interaction.customId === "ticket_canal_modal"
+) {
+
+const canal =
+interaction.fields.getTextInputValue("canal");
+
+const config =
+await pegarConfig() || {};
+
+config.ticketCanal = canal;
+
+await salvarConfig(config);
+
+return interaction.reply({
+content: "✅ Canal do painel salvo.",
+ephemeral: true
+});
+
+}
+  
 if (
 interaction.isModalSubmit() &&
 interaction.customId === "ticket_staff_modal"
