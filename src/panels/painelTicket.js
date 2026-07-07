@@ -16,21 +16,27 @@ const row1 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
-.setCustomId("ticket_categoria")
-.setLabel("Categoria")
-.setEmoji("📂")
+.setCustomId("ticket_canal")
+.setLabel("Canal do Painel")
+.setEmoji("📢")
 .setStyle(ButtonStyle.Primary),
 
 new ButtonBuilder()
-.setCustomId("ticket_staff")
-.setLabel("Cargo Staff")
-.setEmoji("👮")
-.setStyle(ButtonStyle.Success)
+.setCustomId("ticket_categoria")
+.setLabel("Categoria dos Tickets")
+.setEmoji("📂")
+.setStyle(ButtonStyle.Secondary)
 
 );
 
 const row2 = new ActionRowBuilder()
 .addComponents(
+
+new ButtonBuilder()
+.setCustomId("ticket_staff")
+.setLabel("Cargo Staff")
+.setEmoji("👮")
+.setStyle(ButtonStyle.Success),
 
 new ButtonBuilder()
 .setCustomId("ticket_logs")
@@ -44,15 +50,15 @@ const row3 = new ActionRowBuilder()
 .addComponents(
 
 new ButtonBuilder()
-.setCustomId("painel_principal")
-.setLabel("🏠 Painel Principal")
-.setStyle(ButtonStyle.Danger),
-
-new ButtonBuilder()
 .setCustomId("ticket_pagina2")
 .setLabel("Próxima Página")
 .setEmoji("➡️")
-.setStyle(ButtonStyle.Success)
+.setStyle(ButtonStyle.Primary),
+
+new ButtonBuilder()
+.setCustomId("painel_principal")
+.setLabel("🏠 Painel Principal")
+.setStyle(ButtonStyle.Danger)
 
 );
 
