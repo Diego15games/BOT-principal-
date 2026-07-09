@@ -536,7 +536,7 @@ interaction.customId === "ticket_enviar"
 
 const config = await pegarConfig();
 
-if (!config?.ticketCategoria) {
+if (!config?.ticketCanal){
 return interaction.reply({
 content: "❌ Configure a categoria primeiro.",
 ephemeral: true
@@ -545,9 +545,9 @@ ephemeral: true
 
 const canal =
 interaction.guild.channels.cache.get(
-config.ticketCategoria
+config.ticketCanal
 );
-
+  
 if (!canal) {
 return interaction.reply({
 content: "❌ Canal não encontrado.",
@@ -1505,15 +1505,16 @@ interaction.fields.getTextInputValue(
 'descricao'
 );
 
+const config = await pegarConfig();
+
 const channel =
 await interaction.guild.channels.create({
 name: `ticket-${interaction.user.username}`,
 
-  type:
-    ChannelType.GuildText,
+type: ChannelType.GuildText,
 
-  parent:
-    ticketConfig.categoryId,
+parent:
+config.ticketCategoria,
 
   permissionOverwrites: [
     {
@@ -1537,7 +1538,7 @@ name: `ticket-${interaction.user.username}`,
 
     {
       id:
-        ticketConfig.staffId,
+config.ticketStaff,
 
       allow: [
         PermissionsBitField.Flags.ViewChannel,
@@ -1615,9 +1616,11 @@ interaction.isButton() &&
 interaction.customId === 'claim_ticket'
 ) {
 
-const staffRole =
-ticketConfig.staffId;
+const config = await pegarConfig();
 
+const staffRole =
+config.ticketStaff;
+  
 if (
 !interaction.member.roles.cache.has(
 staffRole
