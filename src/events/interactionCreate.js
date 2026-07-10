@@ -248,6 +248,114 @@ return interaction.showModal(modal);
 }
 
 // =========================
+// TICKET - TÍTULO
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_titulo"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_titulo_modal")
+.setTitle("Título do Ticket");
+
+const input = new TextInputBuilder()
+.setCustomId("titulo")
+.setLabel("Título")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+// TICKET - DESCRIÇÃO
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_descricao"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_descricao_modal")
+.setTitle("Descrição");
+
+const input = new TextInputBuilder()
+.setCustomId("descricao")
+.setLabel("Descrição")
+.setStyle(TextInputStyle.Paragraph)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+// TICKET - BANNER
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_banner"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_banner_modal")
+.setTitle("Banner");
+
+const input = new TextInputBuilder()
+.setCustomId("banner")
+.setLabel("URL da imagem")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+// TICKET - COR
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_cor"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_cor_modal")
+.setTitle("Cor");
+
+const input = new TextInputBuilder()
+.setCustomId("cor")
+.setLabel("Hex (#57F287)")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
 //
 // TICKET - SALVAR CONFIG (PARTE 1)
 //
