@@ -545,6 +545,64 @@ return interaction.reply({
 
 // =========================
 //
+// TICKET - BOTÃO
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_botao"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_botao_modal")
+.setTitle("Nome do Botão");
+
+const input = new TextInputBuilder()
+.setCustomId("botao")
+.setLabel("Nome do botão")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}
+
+// =========================
+//
+// TICKET - EMOJI
+//
+// =========================
+
+if (
+interaction.isButton() &&
+interaction.customId === "ticket_emoji"
+) {
+
+const modal = new ModalBuilder()
+.setCustomId("ticket_emoji_modal")
+.setTitle("Emoji do Botão");
+
+const input = new TextInputBuilder()
+.setCustomId("emoji")
+.setLabel("Emoji")
+.setStyle(TextInputStyle.Short)
+.setRequired(true);
+
+modal.addComponents(
+new ActionRowBuilder().addComponents(input)
+);
+
+return interaction.showModal(modal);
+
+}  
+
+// =========================
+//
 // TICKET - SALVAR CONFIG (PARTE 2)
 //
 // =========================
