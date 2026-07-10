@@ -424,6 +424,17 @@ interaction.fields.getTextInputValue("cor");
 const config =
 await pegarConfig() || {};
 
+config.ticketCor = cor;
+
+await salvarConfig(config);
+
+return interaction.reply({
+  content: "✅ Cor salva.",
+  ephemeral: true
+});
+
+}
+
 // =========================
 //
 // TICKET - SALVAR CONFIG (PARTE 2)
