@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder().setName('comandos').setDescription('Listar comandos disponíveis'),
@@ -11,6 +11,6 @@ export default {
       .setColor(0x5865f2)
       .setTitle('📚 Comandos disponíveis')
       .setDescription(linhas.length ? linhas.join('\n').slice(0, 4000) : 'Nenhum comando carregado.');
-    return interaction.reply({ embeds: [embed], ephemeral: true });
+    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
