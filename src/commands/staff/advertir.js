@@ -15,7 +15,7 @@ export default {
       return interaction.reply({ content: '❌ Não é possível advertir esse usuário.', flags: MessageFlags.Ephemeral });
     }
     try {
-      await advertirUsuario(user.id, interaction.user.id, motivo);
+      await advertirUsuario(user.id, motivo, interaction.user.id);
       return interaction.reply({ content: `⚠️ ${user} recebeu uma advertência.\nMotivo: ${motivo}` });
     } catch (error) {
       console.error(error);
