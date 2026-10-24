@@ -323,10 +323,25 @@ export default {
         if (interaction.customId === 'registro_modal' || interaction.customId === 'registro_atualizar_modal') {
           const nick = interaction.fields.getTextInputValue('nick').trim(); const age = Number(interaction.fields.getTextInputValue('idade').trim());
           if (!nick || !Number.isInteger(age) || age < 1 || age > 120) return interaction.reply({ content: '❌ Informe um nick válido e uma idade entre 1 e 120.', ...privateReply });
-          await criarRegistro(interaction.user.id, { nick, idade: age, atualizadoEm: new Date() }); const cfg = await pegarConfig();
-          if (cfg?.cargoRegistrado && interaction.guild) { const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null); if (member) { await member.roles.add(cfg.cargoRegistrado).catch(() => {}); if (cfg.cargoNaoRegistrado) await member.roles.remove(cfg.cargoNaoRegistrado).catch(() => {}); } }
+          await criarRegistro(interaction.user.id, { nick, idade: age, atualizadoEm: new Date() });
+          const cfg = await pegarConfig();
+          let avisoCargo = '';
+          if (cfg?.cargoRegistrado && interaction.guild) {
+            const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
+            if (!member) {
+              avisoCargo = '\n⚠️ Seu registro foi salvo, mas não consegui atualizar seus cargos.';
+            } else {
+              try {
+                await member.roles.add(cfg.cargoRegistrado);
+                if (cfg.cargoNaoRegistrado) await member.roles.remove(cfg.cargoNaoRegistrado);
+              } catch (error) {
+                console.error('Falha ao atualizar cargos do registro:', error);
+                avisoCargo = '\n⚠️ Seu registro foi salvo, mas não consegui atualizar seus cargos. Avise a administração para conferir minhas permissões e a hierarquia dos cargos.';
+              }
+            }
+          }
           const mensagem = (cfg?.mensagemSucesso || '✅ Registro salvo para {user}! Nick: **{nick}**').replaceAll('{user}', `${interaction.user}`).replaceAll('{nick}', nick).replaceAll('{idade}', String(age));
-          return interaction.reply({ content: mensagem, ...privateReply });
+          return interaction.reply({ content: mensagem + avisoCargo, ...privateReply });
         }
       }
     } catch (error) {
