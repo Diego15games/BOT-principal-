@@ -3,6 +3,7 @@ import { executarBotoesXP } from '../panels/xpButtons.js';
 import { pegarConfig, criarRegistro } from '../systems/registro.js';
 import { pegarConfigTickets, configurarTickets, assumirTicket, pegarAssumidoPor, removerTicket, isTicketChannel } from '../systems/tickets.js';
 import { pegarConfigXP, salvarConfigXP } from '../systems/xp.js';
+import { fecharTicket } from '../systems/fecharTicket.js';
 
 const privateReply = { flags: MessageFlags.Ephemeral };
 function makeModal(id, title, field, label, style = TextInputStyle.Short, oldValue = '') {
@@ -129,7 +130,16 @@ export default {
           if (!isTicketChannel(interaction.channel)) return interaction.reply({ content: 'Canal inválido.', ...privateReply });
           if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) && !interaction.member.roles?.cache?.has(config?.staffRoleId)) return interaction.reply({ content: 'Apenas a staff configurada pode fechar o ticket.', ...privateReply });
           await interaction.update({ content: '🔒 Ticket será fechado em alguns segundos.', components: [] });
-          if (config?.logChannelId) { const log = await interaction.guild.channels.fetch(config.logChannelId).catch(() => null); if (log?.isTextBased()) await log.send('Ticket #' + interaction.channel.name + ' fechado por ' + interaction.user + '.').catch(() => {}); }
+          // A resposta já foi enviada pela interação; gerar transcript e registrar sem responder novamente.
+          try {
+            const { gerarTranscript } = await import('../systems/transcript.js');
+            const arquivo = await gerarTranscript(interaction.channel);
+            const logId = config?.logChannelId || config?.ticketLogs;
+            const log = logId ? await interaction.guild.channels.fetch(logId).catch(() => null) : null;
+            if (log?.isTextBased()) {
+              await log.send({ content: '📋 Transcript de #' + interaction.channel.name + ' (fechado por ' + interaction.user + ')', ...(arquivo ? { files: [arquivo] } : {}) });
+            }
+          } catch (err) { console.error('Erro ao registrar transcript do ticket:', err); }
           await removerTicket(interaction.channel.id).catch(() => {});
           setTimeout(() => interaction.channel.delete().catch(() => {}), 2500);
           return;
