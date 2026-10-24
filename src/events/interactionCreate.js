@@ -210,7 +210,7 @@ export default {
           xp_msg_level_modal: ['mensagem','mensagemLevel','string'], xp_msg_cargo_modal: ['mensagem','mensagemCargo','string']
         };
         if (xpFields[interaction.customId]) {
-          const spec = xpFields[interaction.customId]; const raw = interaction.fields.getTextInputValue(spec[0]).trim(); let value = raw; const cfg = await pegarConfigXP() || {};
+          const spec = xpFields[interaction.customId]; const raw = interaction.fields.getTextInputValue(spec[0]).trim(); let value = raw; const cfg = await pegarConfigXP() || {}; delete cfg._id;
           if (spec[2] === 'number') { value = Number(raw); if (!Number.isInteger(value) || value < 0 || value > 86400) return interaction.reply({ content: 'Informe um número inteiro entre 0 e 86400 segundos.', ...privateReply }); }
           if (spec[2] === 'map') { try { value = parsePairs(raw); if (spec[1] !== 'cargos') value = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, Number(v)])); } catch (e) { return interaction.reply({ content: '❌ ' + e.message, ...privateReply }); } }
           if (spec[2] === 'list') value = raw.split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
