@@ -1,6 +1,7 @@
 import {
   SlashCommandBuilder,
-  EmbedBuilder
+  EmbedBuilder,
+  MessageFlags
 } from 'discord.js';
 
 import { claimDaily } from '../../systems/economia.js';
@@ -18,7 +19,7 @@ export default {
         : '';
       return interaction.reply({
         embeds: [new EmbedBuilder().setColor(0xed4245).setDescription(`❌ Você já recebeu sua recompensa diária.${restante}`)],
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
       });
     }
     return interaction.reply({
