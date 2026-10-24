@@ -145,10 +145,12 @@ export default {
           return interaction.reply({ content: '✅ Painel enviado em ' + channel + '.', ...privateReply });
         }
         if (interaction.customId === 'ticket_abrir') {
+          if (!interaction.guild) return interaction.reply({ content: '❌ Este botão só funciona dentro de um servidor.', ...privateReply });
           if (!config?.staffRoleId) return interaction.reply({ content: '❌ Configure o sistema de tickets primeiro.', ...privateReply });
+          await interaction.deferReply({ ...privateReply });
           const guildChannels = await interaction.guild.channels.fetch();
           const existing = guildChannels.find(c => c.topic === 'ticket:' + interaction.user.id);
-          if (existing) return interaction.reply({ content: 'Você já tem um ticket aberto: ' + existing, ...privateReply });
+          if (existing) return interaction.editReply({ content: 'Você já tem um ticket aberto: ' + existing });
           let categoryId;
           if (config.categoryId) {
             const category = await interaction.guild.channels.fetch(config.categoryId).catch(() => null);
@@ -165,7 +167,7 @@ export default {
           });
           const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('ticket_assumir').setLabel('Assumir').setStyle(ButtonStyle.Primary), new ButtonBuilder().setCustomId('ticket_chamar_staff').setLabel('Chamar Staff').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('ticket_fechar').setLabel('Fechar Ticket').setStyle(ButtonStyle.Danger));
           await channel.send({ content: '<@' + interaction.user.id + '> <@&' + config.staffRoleId + '> explique seu problema aqui.', components: [row] });
-          return interaction.reply({ content: '✅ Ticket criado: ' + channel, ...privateReply });
+          return interaction.editReply({ content: '✅ Ticket criado: ' + channel });
         }
         if (['ticket_assumir','ticket_chamar_staff','ticket_fechar'].includes(interaction.customId)) {
           if (!isTicketChannel(interaction.channel)) return interaction.reply({ content: 'Este botão só funciona dentro de um ticket.', ...privateReply });
