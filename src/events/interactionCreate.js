@@ -50,6 +50,18 @@ const privateReply = {
   flags: MessageFlags.Ephemeral
 };
 
+function staffRoleIds(config) {
+  const valor = config?.staffRoleId;
+  if (!valor) return [];
+  const valores = Array.isArray(valor) ? valor : String(valor).split(/[\s,;]+/);
+  return [...new Set(valores.map(item => String(item).replace(/^<@&?(\d+)>$/, '$1')).filter(item => /^\d{17,20}$/.test(item)))];
+}
+
+function memberIsStaff(member, config) {
+  const ids = staffRoleIds(config);
+  return ids.some(id => member?.roles?.cache?.has(id));
+}
+
 function makeModal(
   id,
   title,
@@ -414,7 +426,7 @@ export default {
 
           if (
             !configTicket?.staffRoleId ||
-            !interaction.member.roles.cache.has(configTicket.staffRoleId)
+            !memberIsStaff(interaction.member, configTicket)
           ) {
             return interaction.reply({
               content: '❌ Apenas o staff pode assumir tickets.',
@@ -437,14 +449,13 @@ export default {
           const playerId = getTicketCreatorId(interaction.channel);
 
           // Depois de assumir, o ticket fica restrito ao jogador e ao responsável.
-          await interaction.channel.permissionOverwrites.edit(
-            configTicket.staffRoleId,
-            {
+          for (const roleId of staffRoleIds(configTicket)) {
+            await interaction.channel.permissionOverwrites.edit(roleId, {
               ViewChannel: false,
               SendMessages: false,
               ReadMessageHistory: false
-            }
-          );
+            });
+          }
 
           await interaction.channel.permissionOverwrites.edit(
             interaction.user.id,
@@ -611,7 +622,7 @@ if (id === 'ticket_notificar_player') {
           const membro = interaction.member;
           const ehStaff =
             configTicket?.staffRoleId &&
-            membro.roles.cache.has(configTicket.staffRoleId);
+            memberIsStaff(membro, configTicket);
 
           if (!ehStaff && !membro.permissions.has(
             PermissionFlagsBits.ManageChannels
@@ -689,7 +700,7 @@ if (id === 'ticket_add_staff_modal') {
 
   const membroStaff = await interaction.guild.members.fetch(staffId).catch(() => null);
 
-  if (!membroStaff || !membroStaff.roles.cache.has(configTicket.staffRoleId)) {
+  if (!membroStaff || !memberIsStaff(membroStaff, configTicket)) {
     return interaction.reply({
       content: '❌ Esse membro não foi encontrado ou não possui o cargo staff configurado.',
       ...privateReply
@@ -784,14 +795,16 @@ if (id.startsWith('ticket_config_')) {
             });
           }
 
-          // Validar o cargo da equipe antes de criar o canal.
-          const cargoStaff = await interaction.guild.roles
-            .fetch(configTicket.staffRoleId)
-            .catch(() => null);
+          // Validar todos os cargos de staff configurados (separados por espaço ou vírgula).
+          const staffIds = staffRoleIds(configTicket);
+          const cargosStaff = await Promise.all(
+            staffIds.map(id => interaction.guild.roles.fetch(id).catch(() => null))
+          );
+          const cargosValidos = cargosStaff.filter(Boolean);
 
-          if (!cargoStaff) {
+          if (!staffIds.length || !cargosValidos.length) {
             return interaction.reply({
-              content: '❌ O cargo da equipe configurado nos tickets não existe mais. Configure novamente o cargo de staff.',
+              content: '❌ Nenhum cargo de staff válido foi encontrado. Configure os IDs dos cargos separados por vírgula.',
               ...privateReply
             });
           }
@@ -826,14 +839,14 @@ if (id.startsWith('ticket_config_')) {
                   PermissionFlagsBits.AttachFiles
                 ]
               },
-              {
-                id: cargoStaff.id,
+              ...cargosValidos.map(cargo => ({
+                id: cargo.id,
                 allow: [
                   PermissionFlagsBits.ViewChannel,
                   PermissionFlagsBits.SendMessages,
                   PermissionFlagsBits.ReadMessageHistory
                 ]
-              }
+              }))
             ]
           });
 
@@ -888,14 +901,14 @@ await canal.send({
     `👋 Olá, ${interaction.user}!\n\n` +
     `✅ Seu ticket foi aberto com sucesso!\n` +
     `⏳ Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.\n\n` +
-    `📢 **Responsável notificado:** <@&${configTicket.staffRoleId}>`,
+    `📢 **Staff notificada:** ${staffIds.map(id => `<@&${id}>`).join(' ')}`,
 
   embeds: [embed],
   components: [botoes],
 
   allowedMentions: {
     users: [interaction.user.id],
-    roles: [configTicket.staffRoleId]
+    roles: staffIds
   }
 });
 
