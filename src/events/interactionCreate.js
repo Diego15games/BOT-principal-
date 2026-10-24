@@ -434,8 +434,42 @@ export default {
             });
           }
 
+          const playerId = getTicketCreatorId(interaction.channel);
+
+          // Depois de assumir, o ticket fica restrito ao jogador e ao responsável.
+          await interaction.channel.permissionOverwrites.edit(
+            configTicket.staffRoleId,
+            {
+              ViewChannel: false,
+              SendMessages: false,
+              ReadMessageHistory: false
+            }
+          );
+
+          await interaction.channel.permissionOverwrites.edit(
+            interaction.user.id,
+            {
+              ViewChannel: true,
+              SendMessages: true,
+              ReadMessageHistory: true,
+              AttachFiles: true
+            }
+          );
+
+          if (playerId) {
+            await interaction.channel.permissionOverwrites.edit(
+              playerId,
+              {
+                ViewChannel: true,
+                SendMessages: true,
+                ReadMessageHistory: true,
+                AttachFiles: true
+              }
+            );
+          }
+
           await interaction.reply({
-            content: `✅ Ticket assumido por ${interaction.user}.`
+            content: `✅ Ticket assumido por ${interaction.user}. Agora só você, o jogador e os staffs adicionados conseguem ver este canal.`
           });
 
           if (configTicket.logChannelId) {
@@ -451,6 +485,51 @@ export default {
           }
 
           return;
+        }
+
+        // ADICIONAR OUTRO MEMBRO DA STAFF AO TICKET
+        if (id === 'ticket_add_staff') {
+          const configTicket = await pegarConfigTickets(interaction.guildId);
+          const responsavelId = await pegarAssumidoPor(interaction.channelId);
+
+          if (!configTicket?.staffRoleId ||
+              !interaction.member.roles.cache.has(configTicket.staffRoleId)) {
+            return interaction.reply({
+              content: '❌ Apenas a staff pode usar este botão.',
+              ...privateReply
+            });
+          }
+
+          if (!responsavelId) {
+            return interaction.reply({
+              content: '❌ Primeiro alguém da staff precisa assumir este ticket.',
+              ...privateReply
+            });
+          }
+
+          if (responsavelId !== interaction.user.id) {
+            return interaction.reply({
+              content: '❌ Somente quem assumiu este ticket pode adicionar outro staff.',
+              ...privateReply
+            });
+          }
+
+          const modal = new ModalBuilder()
+            .setCustomId('ticket_add_staff_modal')
+            .setTitle('Adicionar staff ao ticket')
+            .addComponents(
+              new ActionRowBuilder().addComponents(
+                new TextInputBuilder()
+                  .setCustomId('staff_mencao')
+                  .setLabel('Mencione @staff ou cole o ID')
+                  .setPlaceholder('@MembroStaff ou ID do Discord')
+                  .setStyle(TextInputStyle.Short)
+                  .setRequired(true)
+                  .setMaxLength(100)
+              )
+            );
+
+          return interaction.showModal(modal);
         }
 
         // NOTIFICAR PLAYER
@@ -559,6 +638,76 @@ if (id === 'ticket_notificar_player') {
       // ENVIO DOS MODAIS
 if (interaction.isModalSubmit()) {
   const id = interaction.customId;
+
+// ADICIONAR STAFF INFORMADO NO MODAL
+if (id === 'ticket_add_staff_modal') {
+  const configTicket = await pegarConfigTickets(interaction.guildId);
+  const responsavelId = await pegarAssumidoPor(interaction.channelId);
+
+  if (!configTicket?.staffRoleId ||
+      !interaction.member.roles.cache.has(configTicket.staffRoleId)) {
+    return interaction.reply({
+      content: '❌ Apenas a staff pode adicionar membros ao ticket.',
+      ...privateReply
+    });
+  }
+
+  if (responsavelId !== interaction.user.id) {
+    return interaction.reply({
+      content: '❌ Somente quem assumiu este ticket pode adicionar outro staff.',
+      ...privateReply
+    });
+  }
+
+  const entrada = interaction.fields.getTextInputValue('staff_mencao').trim();
+  const match = entrada.match(/^(?:<@!?(\d{17,20})>|(\d{17,20}))$/);
+  const staffId = match?.[1] || match?.[2];
+
+  if (!staffId) {
+    return interaction.reply({
+      content: '❌ Mencione o membro usando @ ou cole o ID numérico do Discord.',
+      ...privateReply
+    });
+  }
+
+  const membroStaff = await interaction.guild.members.fetch(staffId).catch(() => null);
+
+  if (!membroStaff || !membroStaff.roles.cache.has(configTicket.staffRoleId)) {
+    return interaction.reply({
+      content: '❌ Esse membro não foi encontrado ou não possui o cargo staff configurado.',
+      ...privateReply
+    });
+  }
+
+  if (staffId === getTicketCreatorId(interaction.channel)) {
+    return interaction.reply({
+      content: '❌ O jogador que abriu o ticket não pode ser adicionado como staff.',
+      ...privateReply
+    });
+  }
+
+  await interaction.channel.permissionOverwrites.edit(staffId, {
+    ViewChannel: true,
+    SendMessages: true,
+    ReadMessageHistory: true,
+    AttachFiles: true
+  });
+
+  await interaction.reply({
+    content: `✅ ${membroStaff} foi adicionado ao ticket para ajudar.`,
+    allowedMentions: { users: [staffId] }
+  });
+
+  const configAtual = await pegarConfigTickets(interaction.guildId);
+  if (configAtual?.logChannelId) {
+    const logs = await interaction.guild.channels.fetch(configAtual.logChannelId).catch(() => null);
+    if (logs?.isTextBased()) {
+      await logs.send(`👥 ${interaction.user} adicionou ${membroStaff} ao ticket ${interaction.channel}.`);
+    }
+  }
+
+  return;
+}
 
 // SALVAR CONFIGURAÇÕES DO PAINEL DE TICKETS
 if (id.startsWith('ticket_config_')) {
@@ -687,10 +836,16 @@ if (configTicket.banner) {
     .setStyle(ButtonStyle.Success),
 
   new ButtonBuilder()
+    .setCustomId('ticket_add_staff')
+    .setLabel('Add Staff')
+    .setEmoji('👥')
+    .setStyle(ButtonStyle.Primary),
+
+  new ButtonBuilder()
     .setCustomId('ticket_notificar_player')
     .setLabel('Notificar Player')
     .setEmoji('🔔')
-    .setStyle(ButtonStyle.Primary),
+    .setStyle(ButtonStyle.Secondary),
 
   new ButtonBuilder()
     .setCustomId('ticket_fechar')
