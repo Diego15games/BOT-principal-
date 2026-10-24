@@ -14,7 +14,8 @@ new SlashCommandBuilder()
 
 .setDescription(
 'Painel do sistema XP'
-),
+)
+.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
 async execute(interaction) {
 
