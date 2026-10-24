@@ -127,7 +127,7 @@ export default {
         if (interaction.customId === 'ticket_fechar_cancelar') return interaction.update({ content: 'Fechamento cancelado.', components: [] });
         if (interaction.customId === 'ticket_fechar_confirmar') {
           if (!isTicketChannel(interaction.channel)) return interaction.reply({ content: 'Canal inválido.', ...privateReply });
-          if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels)) return interaction.reply({ content: 'Apenas a staff com permissão de gerenciar canais pode fechar o ticket.', ...privateReply });
+          if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) && !interaction.member.roles?.cache?.has(config?.staffRoleId)) return interaction.reply({ content: 'Apenas a staff configurada pode fechar o ticket.', ...privateReply });
           await interaction.update({ content: '🔒 Ticket será fechado em alguns segundos.', components: [] });
           if (config?.logChannelId) { const log = await interaction.guild.channels.fetch(config.logChannelId).catch(() => null); if (log?.isTextBased()) await log.send('Ticket #' + interaction.channel.name + ' fechado por ' + interaction.user + '.').catch(() => {}); }
           await removerTicket(interaction.channel.id).catch(() => {});
