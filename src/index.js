@@ -36,6 +36,16 @@ Partials.Channel
 client.commands = new Collection();
 client.cooldowns = new Collection();
 
+// Remove cooldowns expirados periodicamente para evitar crescimento
+// desnecessário da memória em processos que ficam online por muito tempo.
+const cooldownCleanup = setInterval(() => {
+  const agora = Date.now();
+  for (const [key, expiry] of client.cooldowns) {
+    if (expiry <= agora) client.cooldowns.delete(key);
+  }
+}, 5 * 60 * 1000);
+cooldownCleanup.unref?.();
+
 // ======================
 // CARREGAR COMANDOS
 // ======================
