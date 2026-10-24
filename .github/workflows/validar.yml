@@ -19,4 +19,4 @@ jobs:
       - name: Instalar dependências
         run: npm install
       - name: Verificar sintaxe JavaScript
-        run: find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+        run: npm run check
