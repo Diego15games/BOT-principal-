@@ -207,7 +207,30 @@ export default {
         if (xpFields[interaction.customId]) {
           const spec = xpFields[interaction.customId]; const raw = interaction.fields.getTextInputValue(spec[0]).trim(); let value = raw; const cfg = await pegarConfigXP() || {}; delete cfg._id;
           if (spec[2] === 'number') { value = Number(raw); if (!Number.isInteger(value) || value < 0 || value > 86400) return interaction.reply({ content: 'Informe um número inteiro entre 0 e 86400 segundos.', ...privateReply }); }
-          if (spec[2] === 'map') { try { value = parsePairs(raw); if (spec[1] !== 'cargos') value = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, Number(v)])); } catch (e) { return interaction.reply({ content: '❌ ' + e.message, ...privateReply }); } }
+          if (spec[2] === 'map') {
+            try {
+              value = parsePairs(raw);
+              if (spec[1] === 'cargos') {
+                for (const [level, roleId] of Object.entries(value)) {
+                  if (!/^\d+$/.test(level) || !Number.isSafeInteger(Number(level)) || !/^\d{17,20}$/.test(roleId)) {
+                    throw new Error('Em cargos por level, use LEVEL=ID_CARGO com level inteiro e ID válido.');
+                  }
+                }
+              } else {
+                value = Object.fromEntries(Object.entries(value).map(([key, item]) => [key, Number(item)]));
+                for (const [key, amount] of Object.entries(value)) {
+                  if (!/^\d+$/.test(key) || !Number.isSafeInteger(Number(key)) || !Number.isSafeInteger(amount) || amount < 0) {
+                    throw new Error('Use chaves inteiras não negativas e valores inteiros não negativos.');
+                  }
+                  if (spec[1] === 'xpCargo' && !/^\d{17,20}$/.test(key)) {
+                    throw new Error('Em XP por cargo, a chave precisa ser um ID válido de cargo.');
+                  }
+                }
+              }
+            } catch (e) {
+              return interaction.reply({ content: '❌ ' + e.message, ...privateReply });
+            }
+          }
           if (spec[2] === 'list') value = raw.split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
           cfg[spec[1]] = value; await salvarConfigXP(cfg); return interaction.reply({ content: '✅ Configuração de XP salva.', ...privateReply });
         }
