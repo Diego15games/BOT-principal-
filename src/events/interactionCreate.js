@@ -72,7 +72,7 @@ export default {
           return interaction.showModal(modal);
         }
         if (interaction.customId === 'painel_principal') { const p = await import('../panels/painelPrincipal.js'); return interaction.update(p.painelPrincipal()); }
-        const pageModules = { painel_ticket: '../panels/painelTicket.js', painel_ticket2: '../panels/painelTicket2.js', ticket_pagina2: '../panels/painelTicket2.js', ticket_pagina3: '../panels/painelTicket3.js' };
+        const pageModules = { painel_xp: '../panels/painelXP.js', painel_registro: '../panels/painelRegistro.js', painel_registro2: '../panels/painelRegistro2.js', painel_staff: '../panels/painelStaff.js', painel_geral: '../panels/painelGeral.js', painel_ticket: '../panels/painelTicket.js', painel_ticket2: '../panels/painelTicket2.js', ticket_pagina2: '../panels/painelTicket2.js', ticket_pagina3: '../panels/painelTicket3.js', registro_pagina2: '../panels/painelRegistro2.js', registro_pagina3: '../panels/painelRegistro3.js' };
         if (pageModules[interaction.customId]) { const p = await import(pageModules[interaction.customId]); return interaction.update(Object.values(p).find(x => typeof x === 'function')()); }
         const config = await pegarConfigTickets(interaction.guildId);
         const configButtons = {
