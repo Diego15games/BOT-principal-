@@ -32,7 +32,8 @@ import {
   configurarTickets,
   assumirTicket,
   pegarAssumidoPor,
-  removerTicket
+  removerTicket,
+  getTicketCreatorId
 } from '../systems/tickets.js';
 
 import {
