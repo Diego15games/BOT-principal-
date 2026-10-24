@@ -3,29 +3,25 @@ EmbedBuilder,
 ActionRowBuilder,
 ButtonBuilder,
 ButtonStyle
-} from 'discord.js';
+} from "discord.js";
 
 export function painelTicket() {
 const embed = new EmbedBuilder()
-.setColor(0x57F287)
-.setTitle('🎫 Central de Atendimento')
-.setDescription(
-'Precisa de ajuda? Clique no botão abaixo para abrir um ticket.\n\n' +
-'Nossa equipe atenderá você assim que possível.\n\n' +
-'Use o ticket apenas para assuntos que precisam da equipe.'
-)
-.setFooter({ text: 'MODS-GTAS • Sistema de Suporte' });
+.setColor("#57F287")
+.setTitle("🎫 Sistema de Tickets (1/3)")
+.setDescription("Configure o sistema de tickets.");
 
-const botoes = new ActionRowBuilder().addComponents(
-new ButtonBuilder()
-.setCustomId('ticket_abrir')
-.setLabel('Abrir Ticket')
-.setEmoji('🎫')
-.setStyle(ButtonStyle.Success)
+const row1 = new ActionRowBuilder().addComponents(
+new ButtonBuilder().setCustomId("ticket_canal").setLabel("Canal do Painel").setEmoji("📢").setStyle(ButtonStyle.Primary),
+new ButtonBuilder().setCustomId("ticket_categoria").setLabel("Categoria dos Tickets").setEmoji("📂").setStyle(ButtonStyle.Secondary)
 );
-
-return {
-embeds: [embed],
-components: [botoes]
-};
+const row2 = new ActionRowBuilder().addComponents(
+new ButtonBuilder().setCustomId("ticket_staff").setLabel("Cargo Staff").setEmoji("👮").setStyle(ButtonStyle.Success),
+new ButtonBuilder().setCustomId("ticket_logs").setLabel("Canal Logs").setEmoji("📜").setStyle(ButtonStyle.Secondary)
+);
+const row3 = new ActionRowBuilder().addComponents(
+new ButtonBuilder().setCustomId("ticket_pagina2").setLabel("Próxima Página").setEmoji("➡️").setStyle(ButtonStyle.Primary),
+new ButtonBuilder().setCustomId("painel_principal").setLabel("🏠 Painel Principal").setStyle(ButtonStyle.Danger)
+);
+return { embeds:[embed], components:[row1,row2,row3] };
 }
