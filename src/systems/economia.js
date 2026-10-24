@@ -93,8 +93,9 @@ export async function claimDaily(userId) {
 }
 
 export async function criarGranaPendente(userId, valor) {
+  if (!Number.isSafeInteger(valor) || valor < 0) throw new Error('Valor inválido');
   const user = await collection.findOneAndUpdate({ userId }, { $inc: { granaPendente: valor } }, { upsert: true, returnDocument: 'after' });
-  return user?.granaPendente || valor;
+  return user?.granaPendente ?? valor;
 }
 export async function pegarGranaPendente(userId) {
   const user = await collection.findOne({ userId });
