@@ -21,8 +21,8 @@ const config = await pegarConfig();
 if (!config) {
 return interaction.reply({ content: '❌ Configure primeiro usando /config-registro', flags: MessageFlags.Ephemeral });
 }
-const canal = interaction.guild.channels.cache.get(config.canal);
-if (!canal) {
+const canal = await interaction.guild.channels.fetch(config.canal).catch(() => null);
+if (!canal?.isTextBased()) {
 return interaction.reply({ content: '❌ Canal configurado não encontrado.', flags: MessageFlags.Ephemeral });
 }
 const embed = new EmbedBuilder().setColor(config.cor || '#5865F2').setTitle(config.titulo).setDescription(config.descricao);
