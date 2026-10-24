@@ -162,9 +162,17 @@ export default {
             if (claimed) return interaction.reply({ content: 'Este ticket já foi assumido por <@' + claimed + '>.', ...privateReply });
             const dono = await assumirTicket(interaction.channel.id, interaction.user.id);
             if (dono) return interaction.reply({ content: 'Este ticket já foi assumido por <@' + dono + '>.', ...privateReply });
+            const logId = config.logChannelId || config.ticketLogs;
+            const log = logId ? await interaction.guild.channels.fetch(logId).catch(() => null) : null;
+            if (log?.isTextBased()) await log.send({ content: '🧑‍💼 Ticket ' + interaction.channel + ' assumido por ' + interaction.user + '.' }).catch(() => {});
             return interaction.reply({ content: '✅ Ticket assumido por ' + interaction.user + '.' });
           }
-          if (interaction.customId === 'ticket_chamar_staff') return interaction.reply({ content: '🚨 Staff solicitada por ' + interaction.user + '. <@&' + config.staffRoleId + '>' });
+          if (interaction.customId === 'ticket_chamar_staff') {
+            const logId = config.logChannelId || config.ticketLogs;
+            const log = logId ? await interaction.guild.channels.fetch(logId).catch(() => null) : null;
+            if (log?.isTextBased()) await log.send({ content: '🚨 Staff chamada no ticket ' + interaction.channel + ' por ' + interaction.user + '.' }).catch(() => {});
+            return interaction.reply({ content: '🚨 Staff solicitada por ' + interaction.user + '. <@&' + config.staffRoleId + '>' });
+          }
           const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('ticket_fechar_confirmar').setLabel('Sim, fechar').setStyle(ButtonStyle.Danger), new ButtonBuilder().setCustomId('ticket_fechar_cancelar').setLabel('Não').setStyle(ButtonStyle.Secondary));
           return interaction.reply({ content: 'Tem certeza de que deseja fechar este ticket?', components: [row], ...privateReply });
         }
