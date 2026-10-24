@@ -8,7 +8,7 @@ export default {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction) {
     try {
-      return await interaction.reply(painelTicket());
+      return await interaction.reply({ ...painelTicket(), flags: MessageFlags.Ephemeral });
     } catch (error) {
       console.error(error);
       return interaction.reply({ content: '❌ Não foi possível mostrar o painel.', flags: MessageFlags.Ephemeral });
