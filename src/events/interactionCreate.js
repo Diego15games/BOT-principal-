@@ -167,7 +167,8 @@ export default {
           if (interaction.customId === 'ticket_assumir') {
             const claimed = await pegarAssumidoPor(interaction.channel.id);
             if (claimed) return interaction.reply({ content: 'Este ticket já foi assumido por <@' + claimed + '>.', ...privateReply });
-            await assumirTicket(interaction.channel.id, interaction.user.id);
+            const dono = await assumirTicket(interaction.channel.id, interaction.user.id);
+            if (dono) return interaction.reply({ content: 'Este ticket já foi assumido por <@' + dono + '>.', ...privateReply });
             return interaction.reply({ content: '✅ Ticket assumido por ' + interaction.user + '.' });
           }
           if (interaction.customId === 'ticket_chamar_staff') return interaction.reply({ content: '🚨 Staff solicitada por ' + interaction.user + '. <@&' + config.staffRoleId + '>' });
