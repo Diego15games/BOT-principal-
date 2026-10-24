@@ -147,27 +147,12 @@ export default {
         if (interaction.customId === 'ticket_abrir') {
           if (!interaction.guild) return interaction.reply({ content: '❌ Este botão só funciona dentro de um servidor.', ...privateReply });
           if (!config?.staffRoleId) return interaction.reply({ content: '❌ Configure o sistema de tickets primeiro.', ...privateReply });
-          await interaction.deferReply({ ...privateReply });
-          const guildChannels = await interaction.guild.channels.fetch();
-          const existing = guildChannels.find(c => c.topic === 'ticket:' + interaction.user.id);
-          if (existing) return interaction.editReply({ content: 'Você já tem um ticket aberto: ' + existing });
-          let categoryId;
-          if (config.categoryId) {
-            const category = await interaction.guild.channels.fetch(config.categoryId).catch(() => null);
-            if (category && category.type === ChannelType.GuildCategory) categoryId = category.id;
-          }
-          const channel = await interaction.guild.channels.create({
-            name: 'ticket-' + (interaction.user.username.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 85) || 'usuario'), type: ChannelType.GuildText,
-            parent: categoryId, topic: 'ticket:' + interaction.user.id,
-            permissionOverwrites: [
-              { id: interaction.guild.roles.everyone.id, deny: [PermissionFlagsBits.ViewChannel] },
-              { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.AttachFiles] },
-              { id: config.staffRoleId, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages] }
-            ]
-          });
-          const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('ticket_assumir').setLabel('Assumir').setStyle(ButtonStyle.Primary), new ButtonBuilder().setCustomId('ticket_chamar_staff').setLabel('Chamar Staff').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('ticket_fechar').setLabel('Fechar Ticket').setStyle(ButtonStyle.Danger));
-          await channel.send({ content: '<@' + interaction.user.id + '> <@&' + config.staffRoleId + '> explique seu problema aqui.', components: [row] });
-          return interaction.editReply({ content: '✅ Ticket criado: ' + channel });
+          const modal = new ModalBuilder().setCustomId('ticket_abertura_modal').setTitle('Abrir atendimento');
+          const nick = new TextInputBuilder().setCustomId('ticket_nick').setLabel('Seu nick').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(50);
+          const problema = new TextInputBuilder().setCustomId('ticket_problema').setLabel('Tipo de problema').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(100);
+          const descricao = new TextInputBuilder().setCustomId('ticket_descricao').setLabel('Descreva o problema').setStyle(TextInputStyle.Paragraph).setRequired(true).setMaxLength(1000);
+          modal.addComponents(new ActionRowBuilder().addComponents(nick), new ActionRowBuilder().addComponents(problema), new ActionRowBuilder().addComponents(descricao));
+          return interaction.showModal(modal);
         }
         if (['ticket_assumir','ticket_chamar_staff','ticket_fechar'].includes(interaction.customId)) {
           if (!isTicketChannel(interaction.channel)) return interaction.reply({ content: 'Este botão só funciona dentro de um ticket.', ...privateReply });
@@ -238,6 +223,46 @@ export default {
           const saved = key === 'embedColor' && !value.startsWith('#') ? '#' + value : value;
           await serverConfigCollection.updateOne({ guildId: interaction.guildId }, { $set: { guildId: interaction.guildId, [key]: saved } }, { upsert: true });
           return interaction.reply({ content: '✅ Configuração geral salva.', ...privateReply });
+        }
+        if (interaction.customId === 'ticket_abertura_modal') {
+          if (!interaction.guild) return interaction.reply({ content: '❌ Este formulário só funciona dentro de um servidor.', ...privateReply });
+          const config = await pegarConfigTickets(interaction.guildId);
+          if (!config?.staffRoleId) return interaction.reply({ content: '❌ Configure o sistema de tickets primeiro.', ...privateReply });
+          const nick = interaction.fields.getTextInputValue('ticket_nick').trim();
+          const problema = interaction.fields.getTextInputValue('ticket_problema').trim();
+          const descricao = interaction.fields.getTextInputValue('ticket_descricao').trim();
+          if (!nick || !problema || !descricao) return interaction.reply({ content: 'Preencha todos os campos do formulário.', ...privateReply });
+          await interaction.deferReply({ ...privateReply });
+          const guildChannels = await interaction.guild.channels.fetch();
+          const existing = guildChannels.find(c => c.topic === 'ticket:' + interaction.user.id);
+          if (existing) return interaction.editReply({ content: 'Você já tem um ticket aberto: ' + existing });
+          let categoryId;
+          if (config.categoryId) {
+            const category = await interaction.guild.channels.fetch(config.categoryId).catch(() => null);
+            if (category && category.type === ChannelType.GuildCategory) categoryId = category.id;
+          }
+          const safeName = interaction.user.username.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 80) || 'usuario';
+          const channel = await interaction.guild.channels.create({
+            name: 'ticket-' + safeName, type: ChannelType.GuildText,
+            parent: categoryId, topic: 'ticket:' + interaction.user.id,
+            permissionOverwrites: [
+              { id: interaction.guild.roles.everyone.id, deny: [PermissionFlagsBits.ViewChannel] },
+              { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.AttachFiles] },
+              { id: config.staffRoleId, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.ManageMessages] }
+            ]
+          });
+          const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('ticket_assumir').setLabel('Assumir').setStyle(ButtonStyle.Primary), new ButtonBuilder().setCustomId('ticket_chamar_staff').setLabel('Chamar Staff').setStyle(ButtonStyle.Secondary), new ButtonBuilder().setCustomId('ticket_fechar').setLabel('Fechar Ticket').setStyle(ButtonStyle.Danger));
+          const embed = new EmbedBuilder().setColor(config.color || '#57F287').setTitle('🎫 Novo atendimento').addFields(
+            { name: 'Usuário', value: interaction.user.toString(), inline: true },
+            { name: 'Nick', value: nick.slice(0, 1024), inline: true },
+            { name: 'Problema', value: problema.slice(0, 1024), inline: true },
+            { name: 'Descrição', value: descricao.slice(0, 1024) }
+          ).setTimestamp();
+          await channel.send({ content: '<@' + interaction.user.id + '> <@&' + config.staffRoleId + '>', embeds: [embed], components: [row] });
+          const logId = config.logChannelId || config.ticketLogs;
+          const log = logId ? await interaction.guild.channels.fetch(logId).catch(() => null) : null;
+          if (log?.isTextBased()) await log.send({ content: '🎫 Ticket criado: ' + channel + ' por ' + interaction.user + ' | Problema: ' + problema.slice(0, 500) }).catch(() => {});
+          return interaction.editReply({ content: '✅ Ticket criado: ' + channel });
         }
         if (interaction.customId.startsWith('ticket_config_')) {
           const field = interaction.customId.slice('ticket_config_'.length);
