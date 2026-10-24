@@ -1,4 +1,3 @@
-
 import {
   Events,
   ModalBuilder,
@@ -453,37 +452,40 @@ export default {
           return;
         }
 
-        // CHAMAR STAFF
-        if (id === 'ticket_chamar_staff') {
-          const configTicket = await pegarConfigTickets(
-            interaction.guildId
-          );
+        // NOTIFICAR PLAYER
+if (id === 'ticket_notificar_player') {
+  const configTicket = await pegarConfigTickets(
+    interaction.guildId
+  );
 
-          if (!configTicket?.staffRoleId) {
-            return interaction.reply({
-              content: '❌ O cargo staff ainda não foi configurado.',
-              ...privateReply
-            });
-          }
+  if (
+    !configTicket?.staffRoleId ||
+    !interaction.member.roles.cache.has(configTicket.staffRoleId)
+  ) {
+    return interaction.reply({
+      content: '❌ Apenas a staff pode notificar o jogador.',
+      ...privateReply
+    });
+  }
 
-          await interaction.reply({
-            content: `🚨 <@&${configTicket.staffRoleId}>, precisamos de atendimento em ${interaction.channel}.`
-          });
+  const playerId = getTicketCreatorId(interaction.channel);
 
-          if (configTicket.logChannelId) {
-            const logs = await interaction.guild.channels
-              .fetch(configTicket.logChannelId)
-              .catch(() => null);
+  if (!playerId) {
+    return interaction.reply({
+      content: '❌ Não consegui identificar quem abriu este ticket.',
+      ...privateReply
+    });
+  }
 
-            if (logs?.isTextBased()) {
-              await logs.send(
-                `🔔 ${interaction.user} chamou o staff no ticket ${interaction.channel}.`
-              );
-            }
-          }
+  await interaction.reply({
+    content: `🔔 <@${playerId}>, a staff está te chamando no seu ticket!`,
+    allowedMentions: {
+      users: [playerId]
+    }
+  });
 
-          return;
-        }
+  return;
+                                     }
 
         // PEDIR CONFIRMAÇÃO ANTES DE FECHAR
         if (id === 'ticket_fechar') {
@@ -677,31 +679,39 @@ if (configTicket.banner) {
 }
 
           const botoes = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-              .setCustomId('ticket_assumir')
-              .setLabel('Assumir')
-              .setEmoji('🛡️')
-              .setStyle(ButtonStyle.Success),
-            new ButtonBuilder()
-              .setCustomId('ticket_chamar_staff')
-              .setLabel('Chamar Staff')
-              .setEmoji('📢')
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId('ticket_fechar')
-              .setLabel('Fechar')
-              .setEmoji('🔒')
-              .setStyle(ButtonStyle.Danger)
-          );
+  new ButtonBuilder()
+    .setCustomId('ticket_assumir')
+    .setLabel('Assumir')
+    .setEmoji('🛡️')
+    .setStyle(ButtonStyle.Success),
 
-          await canal.send({
-            content: `<@&${configTicket.staffRoleId}>`,
-            embeds: [embed],
-            components: [botoes],
-            allowedMentions: {
-              roles: [configTicket.staffRoleId]
-            }
-          });
+  new ButtonBuilder()
+    .setCustomId('ticket_notificar_player')
+    .setLabel('Notificar Player')
+    .setEmoji('🔔')
+    .setStyle(ButtonStyle.Primary),
+
+  new ButtonBuilder()
+    .setCustomId('ticket_fechar')
+    .setLabel('Fechar')
+    .setEmoji('🔒')
+    .setStyle(ButtonStyle.Danger)
+);
+await canal.send({
+  content:
+    `👋 Olá, ${interaction.user}!\n\n` +
+    `✅ Seu ticket foi aberto com sucesso!\n` +
+    `⏳ Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.\n\n` +
+    `📢 **Responsável notificado:** <@&${configTicket.staffRoleId}>`,
+
+  embeds: [embed],
+  components: [botoes],
+
+  allowedMentions: {
+    users: [interaction.user.id],
+    roles: [configTicket.staffRoleId]
+  }
+});
 
           if (configTicket.logChannelId) {
             const logs = await interaction.guild.channels
