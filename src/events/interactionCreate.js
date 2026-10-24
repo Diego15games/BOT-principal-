@@ -3,7 +3,6 @@ import { executarBotoesXP } from '../panels/xpButtons.js';
 import { pegarConfig, criarRegistro, salvarConfig } from '../systems/registro.js';
 import { pegarConfigTickets, configurarTickets, assumirTicket, pegarAssumidoPor, removerTicket, isTicketChannel } from '../systems/tickets.js';
 import { pegarConfigXP, salvarConfigXP } from '../systems/xp.js';
-import { fecharTicket } from '../systems/fecharTicket.js';
 
 const privateReply = { flags: MessageFlags.Ephemeral };
 function makeModal(id, title, field, label, style = TextInputStyle.Short, oldValue = '') {
@@ -54,7 +53,7 @@ export default {
         };
         const spec = options[interaction.values[0]];
         if (!spec) return interaction.reply({ content: 'Opção desconhecida.', ...privateReply });
-        const cfg = await pegarConfigXP() || {};
+        const cfg = await pegarConfigXP() || {}; delete cfg._id;
         const old = cfg[spec[4]];
         const oldText = old && typeof old === 'object' ? (Array.isArray(old) ? old.join(',') : Object.entries(old).map(([k,v]) => k + '=' + v).join('\n')) : old;
         const style = ['map','list'].includes(spec[5]) || spec[2] === 'mensagem' ? TextInputStyle.Paragraph : TextInputStyle.Short;
@@ -217,7 +216,8 @@ export default {
           if (['cargo','nao','canal','logs'].includes(field) && !/^\\d{17,20}$/.test(raw)) return interaction.reply({ content: 'Informe um ID válido do Discord.', ...privateReply });
           if (field === 'banner' && !/^https?:\\/\\//i.test(raw)) return interaction.reply({ content: 'Informe uma URL http ou https válida.', ...privateReply });
           if (field === 'cor' && !/^#?[0-9a-f]{6}$/i.test(raw)) return interaction.reply({ content: 'Use uma cor hexadecimal, exemplo #5865F2.', ...privateReply });
-          await salvarConfig({ ...(await pegarConfig() || {}), [key]: field === 'cor' ? (raw.startsWith('#') ? raw : '#' + raw) : raw });
+          const registroConfig = await pegarConfig() || {}; delete registroConfig._id;
+          await salvarConfig({ ...registroConfig, [key]: field === 'cor' ? (raw.startsWith('#') ? raw : '#' + raw) : raw });
           return interaction.reply({ content: '✅ Configuração do registro salva.', ...privateReply });
         }
         if (interaction.customId === 'registro_modal' || interaction.customId === 'registro_atualizar_modal') {
