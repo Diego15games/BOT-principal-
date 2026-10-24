@@ -64,7 +64,7 @@ export default {
       }
       if (interaction.isButton()) {
         if (interaction.customId.startsWith('xp_') && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você precisa da permissão Gerenciar Servidor para configurar o XP.', ...privateReply });
-        if ((interaction.customId.startsWith('ticket_') && !['ticket_abrir','ticket_assumir','ticket_chamar_staff','ticket_fechar','ticket_fechar_confirmar','ticket_fechar_cancelar'].includes(interaction.customId) || interaction.customId.startsWith('registro_') && !['registro_criar','registro_atualizar'].includes(interaction.customId)) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você precisa da permissão Gerenciar Servidor para alterar o painel de tickets.', ...privateReply });
+        if ((interaction.customId.startsWith('ticket_') && !['ticket_abrir','ticket_assumir','ticket_chamar_staff','ticket_fechar','ticket_fechar_confirmar','ticket_fechar_cancelar'].includes(interaction.customId) || interaction.customId.startsWith('registro_') && !['registro_criar','registro_atualizar'].includes(interaction.customId) || interaction.customId.startsWith('staff_') || interaction.customId.startsWith('geral_')) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você precisa da permissão Gerenciar Servidor para alterar o painel de tickets.', ...privateReply });
         if (await executarBotoesXP(interaction)) return;
         if (interaction.customId === 'registro_criar' || interaction.customId === 'registro_atualizar') {
           const modal = new ModalBuilder().setCustomId(interaction.customId === 'registro_criar' ? 'registro_modal' : 'registro_atualizar_modal').setTitle('Registro');
@@ -196,7 +196,7 @@ export default {
         return;
       }
       if (interaction.isModalSubmit()) {
-        if ((interaction.customId.startsWith('xp_') || interaction.customId.startsWith('ticket_config_')) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você não tem permissão para alterar estas configurações.', ...privateReply });
+        if ((interaction.customId.startsWith('xp_') || interaction.customId.startsWith('ticket_config_') || interaction.customId.startsWith('staff_config_') || interaction.customId.startsWith('geral_config_')) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você não tem permissão para alterar estas configurações.', ...privateReply });
         const xpFields = {
           xp_cargo_modal: ['cargos','xpCargo','map'], xp_level_modal: ['xp','xpLevels','map'], xp_cooldown_modal: ['cooldown','cooldown','number'],
           xp_canais_modal: ['canais','canaisSemXP','list'], xp_cargos_modal: ['cargos','cargos','map'], xp_canal_modal: ['canal','canalLevel','string'],
