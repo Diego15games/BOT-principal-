@@ -657,15 +657,24 @@ if (id.startsWith('ticket_config_')) {
           });
 
           const embed = new EmbedBuilder()
-            .setColor(configTicket.cor || '#57F287')
-            .setTitle('🎫 Novo ticket')
-            .addFields(
-              { name: 'Usuário', value: `${interaction.user}` },
-              { name: 'Nick no jogo', value: nick },
-              { name: 'Problema', value: problema },
-              { name: 'Descrição', value: descricao }
-            )
-            .setTimestamp();
+  .setColor(configTicket.cor || '#57F287')
+  .setTitle(configTicket.titulo || '🎫 Novo ticket')
+  .setDescription(
+    configTicket.descricao ||
+    'Olá! Seu ticket foi aberto com sucesso.\n' +
+    'Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.'
+  )
+  .addFields(
+    { name: 'Usuário', value: `${interaction.user}` },
+    { name: 'Nick no jogo', value: nick },
+    { name: 'Problema', value: problema },
+    { name: 'Descrição', value: descricao }
+  )
+  .setTimestamp();
+
+if (configTicket.banner) {
+  embed.setImage(configTicket.banner);
+}
 
           const botoes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
