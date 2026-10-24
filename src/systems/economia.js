@@ -88,7 +88,13 @@ export async function claimDaily(userId) {
     }
   }
 
-  await addMoney(userId, valor);
+  try {
+    await addMoney(userId, valor);
+  } catch (error) {
+    // Libera a recompensa se o crédito falhar, para permitir nova tentativa.
+    await dailyCollection.deleteOne({ userId, lastClaim: hoje }).catch(() => {});
+    throw error;
+  }
   return { success: true, amount: valor };
 }
 
