@@ -1,6 +1,6 @@
 import { Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ChannelType, PermissionFlagsBits, MessageFlags, EmbedBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { executarBotoesXP } from '../panels/xpButtons.js';
-import { pegarConfig, criarRegistro } from '../systems/registro.js';
+import { pegarConfig, criarRegistro, salvarConfig } from '../systems/registro.js';
 import { pegarConfigTickets, configurarTickets, assumirTicket, pegarAssumidoPor, removerTicket, isTicketChannel } from '../systems/tickets.js';
 import { pegarConfigXP, salvarConfigXP } from '../systems/xp.js';
 import { fecharTicket } from '../systems/fecharTicket.js';
@@ -62,7 +62,7 @@ export default {
       }
       if (interaction.isButton()) {
         if (interaction.customId.startsWith('xp_') && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você precisa da permissão Gerenciar Servidor para configurar o XP.', ...privateReply });
-        if (interaction.customId.startsWith('ticket_') && !['ticket_abrir','ticket_assumir','ticket_chamar_staff','ticket_fechar','ticket_fechar_confirmar','ticket_fechar_cancelar'].includes(interaction.customId) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você precisa da permissão Gerenciar Servidor para alterar o painel de tickets.', ...privateReply });
+        if ((interaction.customId.startsWith('ticket_') && !['ticket_abrir','ticket_assumir','ticket_chamar_staff','ticket_fechar','ticket_fechar_confirmar','ticket_fechar_cancelar'].includes(interaction.customId) || interaction.customId.startsWith('registro_') && !['registro_criar','registro_atualizar'].includes(interaction.customId)) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) return interaction.reply({ content: '❌ Você precisa da permissão Gerenciar Servidor para alterar o painel de tickets.', ...privateReply });
         if (await executarBotoesXP(interaction)) return;
         if (interaction.customId === 'registro_criar' || interaction.customId === 'registro_atualizar') {
           const modal = new ModalBuilder().setCustomId(interaction.customId === 'registro_criar' ? 'registro_modal' : 'registro_atualizar_modal').setTitle('Registro');
@@ -70,6 +70,25 @@ export default {
           const age = new TextInputBuilder().setCustomId('idade').setLabel('Sua idade').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(3);
           modal.addComponents(new ActionRowBuilder().addComponents(nick), new ActionRowBuilder().addComponents(age));
           return interaction.showModal(modal);
+        }
+        const registroButtons = {
+          registro_cargo: ['cargo','Cargo Registrado','ID do cargo','cargoRegistrado'],
+          registro_nao: ['nao','Cargo Não Registrado','ID do cargo','cargoNaoRegistrado'],
+          registro_canal: ['canal','Canal do Registro','ID do canal','canal'],
+          registro_logs: ['logs','Canal de Logs','ID do canal','canalLogs'],
+          registro_titulo: ['titulo','Título do Painel','Título','titulo'],
+          registro_descricao: ['descricao','Descrição do Painel','Descrição','descricao'],
+          registro_banner: ['banner','Banner do Painel','URL da imagem','banner'],
+          registro_cor: ['cor','Cor do Painel','Cor hexadecimal, exemplo #5865F2','cor'],
+          registro_msg: ['msg','Mensagem de Sucesso','Use {user} e {nick}','mensagemSucesso'],
+          registro_botao_registrar: ['botao_registrar','Botão Registrar','Texto do botão','botaoRegistrar'],
+          registro_botao_atualizar: ['botao_atualizar','Botão Atualizar','Texto do botão','botaoAtualizar']
+        };
+        if (registroButtons[interaction.customId]) {
+          const s = registroButtons[interaction.customId];
+          const cfg = await pegarConfig() || {};
+          const style = ['descricao','msg'].includes(s[0]) ? TextInputStyle.Paragraph : TextInputStyle.Short;
+          return interaction.showModal(makeModal('registro_config_' + s[0], s[1], s[0], s[2], style, cfg[s[3]] || ''));
         }
         if (interaction.customId === 'painel_principal') { const p = await import('../panels/painelPrincipal.js'); return interaction.update(p.painelPrincipal()); }
         const pageModules = { painel_xp: '../panels/painelXP.js', painel_registro: '../panels/painelRegistro.js', painel_registro2: '../panels/painelRegistro2.js', painel_staff: '../panels/painelStaff.js', painel_geral: '../panels/painelGeral.js', painel_ticket: '../panels/painelTicket.js', painel_ticket2: '../panels/painelTicket2.js', ticket_pagina2: '../panels/painelTicket2.js', ticket_pagina3: '../panels/painelTicket3.js', registro_pagina2: '../panels/painelRegistro2.js', registro_pagina3: '../panels/painelRegistro3.js' };
@@ -173,6 +192,18 @@ export default {
           if (field === 'cor' && !/^#?[0-9a-f]{6}$/i.test(raw)) return interaction.reply({ content: 'Use uma cor hexadecimal, exemplo #5865F2.', ...privateReply });
           await configurarTickets({ guildId: interaction.guildId, [key]: field === 'cor' ? (raw.startsWith('#') ? raw : '#' + raw) : raw });
           return interaction.reply({ content: '✅ Configuração salva.', ...privateReply });
+        }
+        if (interaction.customId.startsWith('registro_config_')) {
+          const field = interaction.customId.slice('registro_config_'.length);
+          const keys = { cargo: 'cargoRegistrado', nao: 'cargoNaoRegistrado', canal: 'canal', logs: 'canalLogs', titulo: 'titulo', descricao: 'descricao', banner: 'banner', cor: 'cor', msg: 'mensagemSucesso', botao_registrar: 'botaoRegistrar', botao_atualizar: 'botaoAtualizar' };
+          const key = keys[field];
+          if (!key) return;
+          const raw = interaction.fields.getTextInputValue(field).trim();
+          if (['cargo','nao','canal','logs'].includes(field) && !/^\\d{17,20}$/.test(raw)) return interaction.reply({ content: 'Informe um ID válido do Discord.', ...privateReply });
+          if (field === 'banner' && !/^https?:\\/\\//i.test(raw)) return interaction.reply({ content: 'Informe uma URL http ou https válida.', ...privateReply });
+          if (field === 'cor' && !/^#?[0-9a-f]{6}$/i.test(raw)) return interaction.reply({ content: 'Use uma cor hexadecimal, exemplo #5865F2.', ...privateReply });
+          await salvarConfig({ ...(await pegarConfig() || {}), [key]: field === 'cor' ? (raw.startsWith('#') ? raw : '#' + raw) : raw });
+          return interaction.reply({ content: '✅ Configuração do registro salva.', ...privateReply });
         }
         if (interaction.customId === 'registro_modal' || interaction.customId === 'registro_atualizar_modal') {
           const nick = interaction.fields.getTextInputValue('nick').trim(); const age = Number(interaction.fields.getTextInputValue('idade').trim());
