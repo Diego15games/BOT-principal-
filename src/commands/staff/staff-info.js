@@ -27,7 +27,7 @@ export default {
           `Tickets atendidos: **${info?.tickets ?? 0}**`,
           `XP: **${xpInfo?.xp ?? 0}**`,
           `Nível: **${xpInfo?.level ?? 0}**`
-        ].join(String.fromCharCode(10));
+        ].join(String.fromCharCode(10)));
 
       return interaction.reply({ embeds: [embed] });
     } catch (error) {
