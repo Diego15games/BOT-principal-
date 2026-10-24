@@ -468,6 +468,23 @@ export default {
             );
           }
 
+          // Ativar o botão Add Staff somente depois que o ticket for assumido.
+          const componentesAtualizados = interaction.message.components.map(linha =>
+            ActionRowBuilder.from(linha).setComponents(
+              ...linha.components.map(componente => {
+                const botao = ButtonBuilder.from(componente);
+                if (botao.data.custom_id === 'ticket_add_staff') {
+                  botao.setDisabled(false);
+                }
+                return botao;
+              })
+            )
+          );
+
+          await interaction.message.edit({
+            components: componentesAtualizados
+          });
+
           await interaction.reply({
             content: `✅ Ticket assumido por ${interaction.user}. Agora só você, o jogador e os staffs adicionados conseguem ver este canal.`
           });
@@ -839,7 +856,8 @@ if (configTicket.banner) {
     .setCustomId('ticket_add_staff')
     .setLabel('Add Staff')
     .setEmoji('👥')
-    .setStyle(ButtonStyle.Primary),
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(true),
 
   new ButtonBuilder()
     .setCustomId('ticket_notificar_player')
