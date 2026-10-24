@@ -21,7 +21,7 @@ export default {
 
       await interaction.channel.permissionOverwrites.edit(
         interaction.guild.roles.everyone,
-        { SendMessages: false }
+        { [PermissionFlagsBits.SendMessages]: false }
       );
 
       return interaction.reply({ content: '🔒 Canal trancado com sucesso.' });
