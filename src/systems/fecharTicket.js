@@ -1,10 +1,10 @@
 import { gerarTranscript } from './transcript.js';
-import { removerTicket, pegarConfigTickets } from './tickets.js';
+import { removerTicket, pegarConfigTickets, isTicketChannel } from './tickets.js';
 
 // Gera transcript, envia ao canal de logs configurado e exclui o ticket.
 export async function fecharTicket(interaction, config = null, aviso = '🔒 Ticket será fechado em alguns segundos.') {
   const canal = interaction.channel;
-  if (!canal || !interaction.guild) throw new Error('Este comando só pode ser usado em um ticket do servidor.');
+  if (!canal || !interaction.guild || !isTicketChannel(canal)) throw new Error('Este comando só pode ser usado em um ticket do servidor.');
   config = config || await pegarConfigTickets(interaction.guildId);
 
   await interaction.reply({ content: aviso });
