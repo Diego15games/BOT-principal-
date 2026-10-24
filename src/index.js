@@ -7,18 +7,19 @@ Partials
 
 import './systems/database.js';
 
-// Evita que um erro solto derrube o bot inteiro.
 process.on('unhandledRejection', err => {
-  console.error('❌ unhandledRejection:', err);
+  console.error('❌ Promessa rejeitada sem tratamento:', err);
 });
 
+// Uma exceção não tratada pode deixar o processo em estado inconsistente.
+// Registra o erro e encerra para que a hospedagem reinicie o bot limpo.
 process.on('uncaughtException', err => {
-  console.error('❌ uncaughtException:', err);
+  console.error('❌ Exceção não tratada; encerrando para reinicialização segura:', err);
+  process.exit(1);
 });
 
 import fs from 'fs';
 import http from 'http';
-import path from 'path';
 
 const client = new Client({
 intents: [
@@ -138,4 +139,10 @@ if (process.env.PORT) {
     });
 }
 
-client.login(process.env.DISCORD_TOKEN);
+try {
+  await client.login(process.env.DISCORD_TOKEN);
+} catch (err) {
+  console.error('❌ Não foi possível conectar ao Discord. Confira DISCORD_TOKEN e a conexão de rede.');
+  console.error(err);
+  process.exit(1);
+}
