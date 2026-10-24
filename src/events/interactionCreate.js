@@ -146,11 +146,17 @@ export default {
         }
         if (interaction.customId === 'ticket_abrir') {
           if (!config?.staffRoleId) return interaction.reply({ content: '❌ Configure o sistema de tickets primeiro.', ...privateReply });
-          const existing = interaction.guild.channels.cache.find(c => c.topic === 'ticket:' + interaction.user.id);
+          const guildChannels = await interaction.guild.channels.fetch();
+          const existing = guildChannels.find(c => c.topic === 'ticket:' + interaction.user.id);
           if (existing) return interaction.reply({ content: 'Você já tem um ticket aberto: ' + existing, ...privateReply });
+          let categoryId;
+          if (config.categoryId) {
+            const category = await interaction.guild.channels.fetch(config.categoryId).catch(() => null);
+            if (category && category.type === ChannelType.GuildCategory) categoryId = category.id;
+          }
           const channel = await interaction.guild.channels.create({
-            name: 'ticket-' + interaction.user.username.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 85), type: ChannelType.GuildText,
-            parent: config.categoryId || undefined, topic: 'ticket:' + interaction.user.id,
+            name: 'ticket-' + interaction.user.username.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 85) || 'ticket-usuario', type: ChannelType.GuildText,
+            parent: categoryId, topic: 'ticket:' + interaction.user.id,
             permissionOverwrites: [
               { id: interaction.guild.roles.everyone.id, deny: [PermissionFlagsBits.ViewChannel] },
               { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.AttachFiles] },
