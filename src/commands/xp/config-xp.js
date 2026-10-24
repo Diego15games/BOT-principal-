@@ -2,7 +2,8 @@ import {
 SlashCommandBuilder,
 EmbedBuilder,
 ActionRowBuilder,
-StringSelectMenuBuilder
+StringSelectMenuBuilder,
+PermissionFlagsBits
 } from 'discord.js';
 
 export default {
