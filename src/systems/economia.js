@@ -59,12 +59,35 @@ export async function getRanking() {
 }
 
 export async function claimDaily(userId) {
-  const agora = new Date();
-  const hoje = agora.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  // A data é calculada no fuso de Brasília, sem depender da formatação do locale.
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date());
+  const valores = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  const hoje = `${valores.year}-${valores.month}-${valores.day}`;
   const valor = 100;
-  const atual = await dailyCollection.findOne({ userId });
-  if (atual?.lastClaim === hoje) return { success: false, remaining: 'amanhã' };
-  await dailyCollection.updateOne({ userId }, { $set: { lastClaim: hoje } }, { upsert: true });
+
+  // A atualização condicional impede que duas interações simultâneas deem
+  // duas recompensas no mesmo dia.
+  const resultado = await dailyCollection.updateOne(
+    { userId, lastClaim: { $ne: hoje } },
+    { $set: { lastClaim: hoje } }
+  );
+
+  if (resultado.matchedCount === 0) {
+    try {
+      await dailyCollection.insertOne({ userId, lastClaim: hoje });
+    } catch (error) {
+      if (error.code === 11000) {
+        return { success: false, remaining: 'amanhã' };
+      }
+      throw error;
+    }
+  }
+
   await addMoney(userId, valor);
   return { success: true, amount: valor };
 }
