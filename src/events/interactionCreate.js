@@ -521,7 +521,7 @@ export default {
           const responsavelId = await pegarAssumidoPor(interaction.channelId);
 
           if (!configTicket?.staffRoleId ||
-              !interaction.member.roles.cache.has(configTicket.staffRoleId)) {
+              !memberIsStaff(interaction.member, configTicket)) {
             return interaction.reply({
               content: '❌ Apenas a staff pode usar este botão.',
               ...privateReply
@@ -568,7 +568,7 @@ if (id === 'ticket_notificar_player') {
 
   if (
     !configTicket?.staffRoleId ||
-    !interaction.member.roles.cache.has(configTicket.staffRoleId)
+    !memberIsStaff(interaction.member, configTicket)
   ) {
     return interaction.reply({
       content: '❌ Apenas a staff pode notificar o jogador.',
@@ -673,7 +673,7 @@ if (id === 'ticket_add_staff_modal') {
   const responsavelId = await pegarAssumidoPor(interaction.channelId);
 
   if (!configTicket?.staffRoleId ||
-      !interaction.member.roles.cache.has(configTicket.staffRoleId)) {
+      !memberIsStaff(interaction.member, configTicket)) {
     return interaction.reply({
       content: '❌ Apenas a staff pode adicionar membros ao ticket.',
       ...privateReply
