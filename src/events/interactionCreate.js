@@ -225,7 +225,8 @@ export default {
           if (!nick || !Number.isInteger(age) || age < 1 || age > 120) return interaction.reply({ content: '❌ Informe um nick válido e uma idade entre 1 e 120.', ...privateReply });
           await criarRegistro(interaction.user.id, { nick, idade: age, atualizadoEm: new Date() }); const cfg = await pegarConfig();
           if (cfg?.cargoRegistrado && interaction.guild) { const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null); if (member) { await member.roles.add(cfg.cargoRegistrado).catch(() => {}); if (cfg.cargoNaoRegistrado) await member.roles.remove(cfg.cargoNaoRegistrado).catch(() => {}); } }
-          return interaction.reply({ embeds: [new EmbedBuilder().setColor(0x57f287).setTitle('✅ Registro salvo').setDescription('Nick: **' + nick + '**\nIdade: **' + age + '**')], ...privateReply });
+          const mensagem = (cfg?.mensagemSucesso || '✅ Registro salvo para {user}! Nick: **{nick}**').replaceAll('{user}', `${interaction.user}`).replaceAll('{nick}', nick).replaceAll('{idade}', String(age));
+          return interaction.reply({ content: mensagem, ...privateReply });
         }
       }
     } catch (error) {
