@@ -20,6 +20,9 @@ export default {
     const user = interaction.options.getUser('usuario');
     const motivo = interaction.options.getString('motivo') || 'Não informado';
 
+    if (!interaction.guild) {
+      return interaction.reply({ content: '❌ Este comando só funciona dentro de um servidor.', flags: MessageFlags.Ephemeral });
+    }
     if (user.id === interaction.user.id) {
       return interaction.reply({ content: '❌ Você não pode banir a si mesmo.', flags: MessageFlags.Ephemeral });
     }
@@ -37,10 +40,12 @@ export default {
 
     try {
       await interaction.guild.members.ban(user.id, { reason: motivo });
-      await interaction.reply({ content: `✅ ${user.tag} foi banido.\nMotivo: ${motivo}` });
+      return interaction.reply({ content: `✅ ${user.tag} foi banido.\nMotivo: ${motivo}` });
     } catch (err) {
-      console.error(err);
-      await interaction.reply({ content: '❌ Não foi possível banir este usuário.', flags: MessageFlags.Ephemeral });
+      console.error('Erro ao banir usuário:', err);
+      const resposta = { content: '❌ Não foi possível banir este usuário. Verifique minhas permissões.', flags: MessageFlags.Ephemeral };
+      if (interaction.replied || interaction.deferred) return interaction.followUp(resposta);
+      return interaction.reply(resposta);
     }
   }
 };
