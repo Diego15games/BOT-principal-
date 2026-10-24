@@ -35,7 +35,7 @@ export default {
         if (!command) return interaction.reply({ content: '❌ Comando não encontrado.', ...privateReply });
         const seconds = Number(command.cooldown || 0);
         if (seconds > 0) {
-          const key = interaction.user.id + ':' + interaction.commandName;
+          const key = (interaction.guildId || 'dm') + ':' + interaction.user.id + ':' + interaction.commandName;
           const expiry = client.cooldowns.get(key);
           if (expiry && expiry > Date.now()) return interaction.reply({ content: '⏳ Aguarde ' + Math.ceil((expiry - Date.now()) / 1000) + ' segundo(s) antes de usar novamente.', ...privateReply });
           client.cooldowns.set(key, Date.now() + seconds * 1000);
