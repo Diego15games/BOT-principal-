@@ -213,8 +213,8 @@ export default {
           const key = keys[field];
           if (!key) return;
           const raw = interaction.fields.getTextInputValue(field).trim();
-          if (['cargo','nao','canal','logs'].includes(field) && !/^\\d{17,20}$/.test(raw)) return interaction.reply({ content: 'Informe um ID válido do Discord.', ...privateReply });
-          if (field === 'banner' && !/^https?:\\/\\//i.test(raw)) return interaction.reply({ content: 'Informe uma URL http ou https válida.', ...privateReply });
+          if (['cargo','nao','canal','logs'].includes(field) && !/^\d{17,20}$/.test(raw)) return interaction.reply({ content: 'Informe um ID válido do Discord.', ...privateReply });
+          if (field === 'banner' && !/^https?:\/\//i.test(raw)) return interaction.reply({ content: 'Informe uma URL http ou https válida.', ...privateReply });
           if (field === 'cor' && !/^#?[0-9a-f]{6}$/i.test(raw)) return interaction.reply({ content: 'Use uma cor hexadecimal, exemplo #5865F2.', ...privateReply });
           const registroConfig = await pegarConfig() || {}; delete registroConfig._id;
           await salvarConfig({ ...registroConfig, [key]: field === 'cor' ? (raw.startsWith('#') ? raw : '#' + raw) : raw });
