@@ -71,6 +71,21 @@ export default {
           modal.addComponents(new ActionRowBuilder().addComponents(nick), new ActionRowBuilder().addComponents(age));
           return interaction.showModal(modal);
         }
+        if (interaction.customId === 'registro_preview' || interaction.customId === 'registro_enviar') {
+          const cfg = await pegarConfig();
+          if (!cfg?.canal || !cfg?.cargoRegistrado || !cfg?.cargoNaoRegistrado) return interaction.reply({ content: 'Configure os cargos e o canal do registro primeiro.', ...privateReply });
+          const embed = new EmbedBuilder().setColor(cfg.cor || '#5865F2').setTitle(cfg.titulo || '📝 Registro').setDescription(cfg.descricao || 'Clique abaixo para registrar-se.');
+          if (cfg.banner) embed.setImage(cfg.banner);
+          const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('registro_criar').setLabel(cfg.botaoRegistrar || 'Registrar-se').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId('registro_atualizar').setLabel(cfg.botaoAtualizar || 'Atualizar Registro').setStyle(ButtonStyle.Primary)
+          );
+          if (interaction.customId === 'registro_preview') return interaction.reply({ embeds: [embed], components: [row], ...privateReply });
+          const channel = await interaction.guild.channels.fetch(cfg.canal).catch(() => null);
+          if (!channel?.isTextBased()) return interaction.reply({ content: 'Canal de registro inválido.', ...privateReply });
+          await channel.send({ embeds: [embed], components: [row] });
+          return interaction.reply({ content: '✅ Painel de registro enviado em ' + channel + '.', ...privateReply });
+        }
         const registroButtons = {
           registro_cargo: ['cargo','Cargo Registrado','ID do cargo','cargoRegistrado'],
           registro_nao: ['nao','Cargo Não Registrado','ID do cargo','cargoNaoRegistrado'],
