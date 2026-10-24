@@ -34,7 +34,13 @@ export async function addTicket(userId) {
 export async function removeWarning(userId) {
   const dados = await collection.findOne({ userId });
   if (!dados || !(dados.advertencias > 0)) return null;
-  await collection.updateOne({ userId, advertencias: { $gt: 0 } }, { $inc: { advertencias: -1 }, $pop: { historico: 1 } });
+  // Mantém o histórico como registro de auditoria; não apaga o último item,
+  // que pode ser um evento de pontos ou outra ação da equipe.
+  const resultado = await collection.updateOne(
+    { userId, advertencias: { $gt: 0 } },
+    { $inc: { advertencias: -1 } }
+  );
+  if (resultado.modifiedCount !== 1) return null;
   return await getStaff(userId);
 }
 export async function listarAdvertencias(userId) {
