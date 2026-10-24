@@ -41,11 +41,11 @@ export default {
       }
       if (interaction.isStringSelectMenu() && interaction.customId === 'xp_config_menu') {
         const options = {
-          xp_cargo: ['xp_cargo_modal','XP por Cargo','cargos','ID_CARGO=XP por linha','xpPorCargo','map'],
-          xp_level: ['xp_level_modal','XP para Level','xp','LEVEL=XP por linha','xpPorLevel','map'],
+          xp_cargo: ['xp_cargo_modal','XP por Cargo','cargos','ID_CARGO=XP por linha','xpCargo','map'],
+          xp_level: ['xp_level_modal','XP para Level','xp','LEVEL=XP por linha','xpLevels','map'],
           cooldown: ['xp_cooldown_modal','Cooldown XP','cooldown','Tempo em segundos','cooldown','number'],
           canais: ['xp_canais_modal','Canais sem XP','canais','IDs separados por vírgula','canaisSemXP','list'],
-          cargos: ['xp_cargos_modal','Cargos por Level','cargos','LEVEL=ID_CARGO por linha','cargosPorLevel','map'],
+          cargos: ['xp_cargos_modal','Cargos por Level','cargos','LEVEL=ID_CARGO por linha','cargos','map'],
           canal_level: ['xp_canal_modal','Canal de Level Up','canal','ID do canal','canalLevel','string'],
           msg_level: ['xp_msg_level_modal','Mensagem de Level','mensagem','Use {user} e {level}','mensagemLevel','string'],
           msg_cargo: ['xp_msg_cargo_modal','Mensagem de Cargo','mensagem','Use {user}, {level} e {cargo}','mensagemCargo','string']
@@ -138,8 +138,8 @@ export default {
       }
       if (interaction.isModalSubmit()) {
         const xpFields = {
-          xp_cargo_modal: ['cargos','xpPorCargo','map'], xp_level_modal: ['xp','xpPorLevel','map'], xp_cooldown_modal: ['cooldown','cooldown','number'],
-          xp_canais_modal: ['canais','canaisSemXP','list'], xp_cargos_modal: ['cargos','cargosPorLevel','map'], xp_canal_modal: ['canal','canalLevel','string'],
+          xp_cargo_modal: ['cargos','xpCargo','map'], xp_level_modal: ['xp','xpLevels','map'], xp_cooldown_modal: ['cooldown','cooldown','number'],
+          xp_canais_modal: ['canais','canaisSemXP','list'], xp_cargos_modal: ['cargos','cargos','map'], xp_canal_modal: ['canal','canalLevel','string'],
           xp_msg_level_modal: ['mensagem','mensagemLevel','string'], xp_msg_cargo_modal: ['mensagem','mensagemCargo','string']
         };
         if (xpFields[interaction.customId]) {
