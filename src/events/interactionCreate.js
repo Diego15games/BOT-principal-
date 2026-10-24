@@ -1,45 +1,98 @@
-import { Events, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ChannelType, PermissionFlagsBits, MessageFlags, EmbedBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+
+import {
+  Events,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
+  ChannelType,
+  PermissionFlagsBits,
+  MessageFlags,
+  EmbedBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} from 'discord.js';
+
 import { executarBotoesXP } from '../panels/xpButtons.js';
-import { pegarConfig, criarRegistro, salvarConfig } from '../systems/registro.js';
-import { pegarConfigTickets, configurarTickets, assumirTicket, pegarAssumidoPor, removerTicket, isTicketChannel } from '../systems/tickets.js';
-import { pegarConfigXP, salvarConfigXP } from '../systems/xp.js';
+import { painelPrincipal } from '../panels/painelPrincipal.js';
+import { painelTicket } from '../panels/painelTicket.js';
+import { painelTicket2 } from '../panels/painelTicket2.js';
+import { painelTicket3 } from '../panels/painelTicket3.js';
+import { painelRegistro } from '../panels/painelRegistro.js';
+import { painelStaff } from '../panels/painelStaff.js';
+import { painelGeral } from '../panels/painelGeral.js';
+
+import {
+  pegarConfig,
+  criarRegistro,
+  salvarConfig
+} from '../systems/registro.js';
+
+import {
+  pegarConfigTickets,
+  configurarTickets,
+  assumirTicket,
+  pegarAssumidoPor,
+  removerTicket
+} from '../systems/tickets.js';
+
+import {
+  pegarConfigXP,
+  salvarConfigXP
+} from '../systems/xp.js';
+
 import { salvarConfigStaff } from '../systems/staff.js';
 import { db } from '../systems/database.js';
 
 const serverConfigCollection = db.collection('serverConfig');
-const privateReply = { flags: MessageFlags.Ephemeral };
 
-function makeModal(id, title, field, label, style = TextInputStyle.Short, oldValue = '') {
-  const modal = new ModalBuilder().setCustomId(id).setTitle(title);
+const privateReply = {
+  flags: MessageFlags.Ephemeral
+};
+
+function makeModal(
+  id,
+  title,
+  field,
+  label,
+  style = TextInputStyle.Short,
+  oldValue = ''
+) {
   const input = new TextInputBuilder()
-    .setCustomId(field)
-    .setLabel(label)
+    .setCustomId('valor')
+    .setLabel(label.slice(0, 45))
     .setStyle(style)
     .setRequired(true)
-    .setMaxLength(4000);
+    .setMaxLength(style === TextInputStyle.Paragraph ? 4000 : 1000);
 
   if (oldValue) input.setValue(String(oldValue).slice(0, 4000));
 
-  modal.addComponents(new ActionRowBuilder().addComponents(input));
-  return modal;
+  return new ModalBuilder()
+    .setCustomId(id)
+    .setTitle(title.slice(0, 45))
+    .addComponents(
+      new ActionRowBuilder().addComponents(input)
+    );
 }
 
-function parsePairs(raw) {
-  const result = {};
+function criarBotoesFechamento() {
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('ticket_fechar_confirmar')
+      .setLabel('Sim, resolver e fechar')
+      .setEmoji('✅')
+      .setStyle(ButtonStyle.Success),
 
-  for (const line of raw.split(/[\n,;]+/).map(x => x.trim()).filter(Boolean)) {
-    const i = line.indexOf('=');
+    new ButtonBuilder()
+      .setCustomId('ticket_fechar_cancelar')
+      .setLabel('Não, voltar')
+      .setEmoji('↩️')
+      .setStyle(ButtonStyle.Secondary)
+  );
+}
 
-    if (i < 1 || !line.slice(i + 1).trim()) {
-      throw new Error('Use o formato chave=valor, uma configuração por linha.');
-    }
-
-    const key = line.slice(0, i).trim();
-    const value = line.slice(i + 1).trim();
-    result[key] = value;
-  }
-
-  return result;
+function valorTexto(valor) {
+  return String(valor ?? '').trim();
 }
 
 export default {
@@ -47,495 +100,608 @@ export default {
 
   async execute(interaction, client) {
     try {
+      // COMANDOS SLASH
       if (interaction.isChatInputCommand()) {
         const command = client.commands.get(interaction.commandName);
 
-        if (!command) {
-          return interaction.reply({
-            content: '❌ Comando não encontrado.',
-            ...privateReply
-          });
-        }
-
-        const seconds = Number(command.cooldown || 0);
-
-        if (seconds > 0) {
-          const key =
-            (interaction.guildId || 'dm') + ':' +
-            interaction.user.id + ':' +
-            interaction.commandName;
-
-          const expiry = client.cooldowns.get(key);
-
-          if (expiry && expiry > Date.now()) {
-            return interaction.reply({
-              content: '⏳ Aguarde ' +
-                Math.ceil((expiry - Date.now()) / 1000) +
-                ' segundo(s) antes de usar novamente.',
-              ...privateReply
-            });
-          }
-
-          client.cooldowns.set(key, Date.now() + seconds * 1000);
-        }
+        if (!command) return;
 
         return await command.execute(interaction, client);
       }
 
+      // MENU DE CONFIGURAÇÃO DO XP
       if (
         interaction.isStringSelectMenu() &&
         interaction.customId === 'xp_config_menu'
       ) {
+        const escolha = interaction.values[0];
+
+        const modais = {
+          xp_cargo_modal: [
+            'Configurar cargos XP',
+            'Digite os cargos e valores'
+          ],
+          xp_canal_modal: [
+            'Configurar canais XP',
+            'Digite os canais e valores'
+          ],
+          xp_mensagem_modal: [
+            'Mensagem de XP',
+            'Digite a mensagem de XP'
+          ],
+          xp_cooldown_modal: [
+            'Cooldown XP',
+            'Digite o tempo em segundos'
+          ]
+        };
+
+        if (modais[escolha]) {
+          const [titulo, label] = modais[escolha];
+
+          return interaction.showModal(
+            makeModal(escolha, titulo, 'valor', label)
+          );
+        }
+
+        return;
+      }
+
+      // BOTÕES
+      if (interaction.isButton()) {
+        const id = interaction.customId;
+
+        const botoesPublicos = [
+          'ticket_abrir',
+          'ticket_assumir',
+          'ticket_chamar_staff',
+          'ticket_fechar',
+          'ticket_fechar_confirmar',
+          'ticket_fechar_cancelar'
+        ];
+
+        const botoesPainel = [
+          'painel_principal',
+          'painel_ticket',
+          'painel_ticket2',
+          'ticket_pagina2',
+          'ticket_pagina3',
+          'painel_registro',
+          'painel_staff',
+          'painel_geral',
+          'painel_xp',
+          'ticket_canal',
+          'ticket_categoria',
+          'ticket_staff',
+          'ticket_logs',
+          'ticket_titulo',
+          'ticket_descricao',
+          'ticket_banner',
+          'ticket_cor',
+          'ticket_botao',
+          'ticket_emoji',
+          'ticket_preview',
+          'ticket_enviar'
+        ];
+
+        const eConfiguracao = botoesPainel.includes(id);
+
         if (
+          eConfiguracao &&
           !interaction.memberPermissions?.has(
             PermissionFlagsBits.ManageGuild
           )
         ) {
           return interaction.reply({
-            content: '❌ Você precisa da permissão Gerenciar Servidor para configurar o XP.',
+            content: '❌ Apenas administradores podem usar este painel.',
             ...privateReply
           });
         }
 
-        const options = {
-          xp_cargo: [
-            'xp_cargo_modal', 'XP por Cargo',
-            'cargos', 'ID_CARGO=XP por linha', 'xpCargo', 'map'
-          ],
-          xp_level: [
-            'xp_level_modal', 'XP para Level',
-            'xp', 'LEVEL=XP por linha', 'xpLevels', 'map'
-          ],
-          cooldown: [
-            'xp_cooldown_modal', 'Cooldown XP',
-            'cooldown', 'Tempo em segundos', 'cooldown', 'number'
-          ],
-          canais: [
-            'xp_canais_modal', 'Canais sem XP',
-            'canais', 'IDs separados por vírgula', 'canaisSemXP', 'list'
-          ],
-          cargos: [
-            'xp_cargos_modal', 'Cargos por Level',
-            'cargos', 'LEVEL=ID_CARGO por linha', 'cargos', 'map'
-          ],
-          canal_level: [
-            'xp_canal_modal', 'Canal de Level Up',
-            'canal', 'ID do canal', 'canalLevel', 'string'
-          ],
-          msg_level: [
-            'xp_msg_level_modal', 'Mensagem de Level',
-            'mensagem', 'Use {user} e {level}', 'mensagemLevel', 'string'
-          ],
-          msg_cargo: [
-            'xp_msg_cargo_modal', 'Mensagem de Cargo',
-            'mensagem', 'Use {user}, {level} e {cargo}', 'mensagemCargo', 'string'
-          ]
-        };
-
-        const spec = options[interaction.values[0]];
-
-        if (!spec) {
-          return interaction.reply({
-            content: 'Opção desconhecida.',
-            ...privateReply
-          });
-        }
-
-        const cfg = await pegarConfigXP() || {};
-        delete cfg._id;
-
-        const old = cfg[spec[4]];
-
-        const oldText =
-          old && typeof old === 'object'
-            ? (
-                Array.isArray(old)
-                  ? old.join(',')
-                  : Object.entries(old)
-                      .map(([k, v]) => k + '=' + v)
-                      .join('\n')
-              )
-            : old;
-
-        const style =
-          ['map', 'list'].includes(spec[5]) ||
-          spec[2] === 'mensagem'
-            ? TextInputStyle.Paragraph
-            : TextInputStyle.Short;
-
-        return interaction.showModal(
-          makeModal(
-            spec[0],
-            spec[1],
-            spec[2],
-            spec[3],
-            style,
-            oldText || ''
-          )
-        );
-      }
-            if (interaction.isButton()) {
-        if (
-          interaction.customId.startsWith('xp_') &&
-          !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)
-        ) {
-          return interaction.reply({
-            content: '❌ Você precisa da permissão Gerenciar Servidor para configurar o XP.',
-            ...privateReply
-          });
-        }
-
-        if (
-          (
-            (
-              interaction.customId.startsWith('ticket_') &&
-              ![
-                'ticket_abrir',
-                'ticket_assumir',
-                'ticket_chamar_staff',
-                'ticket_fechar',
-                'ticket_fechar_confirmar',
-                'ticket_fechar_cancelar'
-              ].includes(interaction.customId)
-            ) ||
-            (
-              interaction.customId.startsWith('registro_') &&
-              !['registro_criar', 'registro_atualizar'].includes(interaction.customId)
-            ) ||
-            interaction.customId.startsWith('staff_') ||
-            interaction.customId.startsWith('geral_')
-          ) &&
-          !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)
-        ) {
-          return interaction.reply({
-            content: '❌ Você precisa da permissão Gerenciar Servidor para alterar essa configuração.',
-            ...privateReply
-          });
-        }
-
+        // BOTÕES DO SISTEMA XP
         if (await executarBotoesXP(interaction)) return;
 
-        if (interaction.customId === 'registro_criar') {
+        // NAVEGAÇÃO DOS PAINÉIS
+        const paineis = {
+          painel_principal: painelPrincipal,
+          painel_ticket: painelTicket,
+          painel_ticket2: painelTicket2,
+          ticket_pagina2: painelTicket2,
+          ticket_pagina3: painelTicket3,
+          painel_registro: painelRegistro,
+          painel_staff: painelStaff,
+          painel_geral: painelGeral
+        };
+
+        if (paineis[id]) {
+          return interaction.update(paineis[id]());
+        }
+
+        
+        // CONFIGURAÇÕES DOS TICKETS
+        const config = await pegarConfigTickets(interaction.guildId);
+
+        const camposTicket = {
+          ticket_canal: {
+            campo: 'panelChannelId',
+            titulo: 'Configurar canal do painel',
+            label: 'ID do canal de texto'
+          },
+          ticket_categoria: {
+            campo: 'categoryId',
+            titulo: 'Configurar categoria',
+            label: 'ID da categoria'
+          },
+          ticket_staff: {
+            campo: 'staffRoleId',
+            titulo: 'Configurar cargo staff',
+            label: 'ID do cargo staff'
+          },
+          ticket_logs: {
+            campo: 'logChannelId',
+            titulo: 'Configurar canal de logs',
+            label: 'ID do canal de logs'
+          },
+          ticket_titulo: {
+            campo: 'titulo',
+            titulo: 'Título do painel',
+            label: 'Título'
+          },
+          ticket_descricao: {
+            campo: 'descricao',
+            titulo: 'Descrição do painel',
+            label: 'Descrição',
+            style: TextInputStyle.Paragraph
+          },
+          ticket_banner: {
+            campo: 'banner',
+            titulo: 'Banner do painel',
+            label: 'URL da imagem'
+          },
+          ticket_cor: {
+            campo: 'cor',
+            titulo: 'Cor do painel',
+            label: 'Cor hexadecimal (ex.: #5865F2)'
+          },
+          ticket_botao: {
+            campo: 'botao',
+            titulo: 'Nome do botão',
+            label: 'Texto do botão'
+          },
+          ticket_emoji: {
+            campo: 'emoji',
+            titulo: 'Emoji do botão',
+            label: 'Emoji'
+          }
+        };
+
+        if (camposTicket[id]) {
+          const item = camposTicket[id];
+
           return interaction.showModal(
             makeModal(
-              'registro_modal',
-              'Criar Registro',
-              'registro',
-              'Digite as informações do registro',
-              TextInputStyle.Paragraph
+              `ticket_config_${item.campo}`,
+              item.titulo,
+              'valor',
+              item.label,
+              item.style || TextInputStyle.Short,
+              config?.[item.campo] || ''
             )
           );
         }
 
-        if (interaction.customId === 'registro_atualizar') {
-          return interaction.showModal(
-            makeModal(
-              'registro_atualizar_modal',
-              'Atualizar Registro',
-              'registro',
-              'Digite as informações atualizadas',
-              TextInputStyle.Paragraph
-            )
-          );
-        }
+        // PRÉ-VISUALIZAÇÃO DO PAINEL PÚBLICO
+        if (id === 'ticket_preview') {
+          const embed = new EmbedBuilder()
+            .setColor(config?.cor || '#57F287')
+            .setTitle(config?.titulo || '🎫 Suporte')
+            .setDescription(
+              config?.descricao ||
+              'Clique no botão abaixo para abrir um ticket.'
+            );
 
-        if (interaction.customId === 'ticket_abrir') {
-          const config = await pegarConfigTickets();
-
-          if (!config) {
-            return interaction.reply({
-              content: '❌ O sistema de tickets ainda não foi configurado.',
-              ...privateReply
-            });
+          if (config?.banner) {
+            embed.setImage(config.banner);
           }
 
-          const modal = new ModalBuilder()
-            .setCustomId('ticket_modal')
-            .setTitle('Abrir Ticket');
-
-          const nick = new TextInputBuilder()
-            .setCustomId('nick')
-            .setLabel('Seu nick')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true)
-            .setMaxLength(100);
-
-          const problema = new TextInputBuilder()
-            .setCustomId('problema')
-            .setLabel('Qual é o problema?')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true)
-            .setMaxLength(200);
-
-          const descricao = new TextInputBuilder()
-            .setCustomId('descricao')
-            .setLabel('Descreva o problema')
-            .setStyle(TextInputStyle.Paragraph)
-            .setRequired(true)
-            .setMaxLength(4000);
-
-          modal.addComponents(
-            new ActionRowBuilder().addComponents(nick),
-            new ActionRowBuilder().addComponents(problema),
-            new ActionRowBuilder().addComponents(descricao)
-          );
-
-          return interaction.showModal(modal);
-        }
-
-        if (interaction.customId === 'ticket_assumir') {
-          const config = await pegarConfigTickets();
-          const membro = await interaction.guild.members
-            .fetch(interaction.user.id)
-            .catch(() => null);
-
-          const staffAutorizada = Boolean(
-            membro &&
-            config?.staffRoleId &&
-            membro.roles.cache.has(config.staffRoleId)
-          );
-
-          if (
-            !staffAutorizada &&
-            !interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels)
-          ) {
-            return interaction.reply({
-              content: '❌ Apenas a equipe de suporte pode assumir este ticket.',
-              ...privateReply
-            });
-          }
-
-          const assumido = await pegarAssumidoPor(interaction.channel.id);
-
-          if (assumido) {
-            return interaction.reply({
-              content: `❌ Este ticket já foi assumido por <@${assumido}>.`,
-              ...privateReply
-            });
-          }
-
-          await assumirTicket(interaction.channel.id, interaction.user.id);
-
-          return interaction.reply({
-            content: `✅ Ticket assumido por ${interaction.user}.`,
-            allowedMentions: { users: [interaction.user.id] }
-          });
-        }
-
-        if (interaction.customId === 'ticket_chamar_staff') {
-          const config = await pegarConfigTickets();
-
-          if (!config?.staffRoleId) {
-            return interaction.reply({
-              content: '❌ O cargo da equipe não está configurado.',
-              ...privateReply
-            });
-          }
-
-          return interaction.reply({
-            content: `🔔 <@&${config.staffRoleId}>, a equipe foi chamada por ${interaction.user}.`,
-            allowedMentions: {
-              roles: [config.staffRoleId],
-              users: [interaction.user.id]
-            }
-          });
-        }
-
-        if (interaction.customId === 'ticket_fechar') {
-          const configFechamento = new EmbedBuilder()
-            .setColor(0xF1C40F)
-            .setTitle('Fechar ticket')
-            .setDescription('Você tem certeza de que deseja fechar este ticket?');
-
-          const botoesFechamento = new ActionRowBuilder().addComponents(
+          const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-              .setCustomId('ticket_fechar_confirmar')
-              .setLabel('Sim, fechar')
-              .setStyle(ButtonStyle.Danger),
-            new ButtonBuilder()
-              .setCustomId('ticket_fechar_cancelar')
-              .setLabel('Não, cancelar')
-              .setStyle(ButtonStyle.Secondary)
+              .setCustomId('ticket_abrir')
+              .setLabel(config?.botao || 'Abrir Ticket')
+              .setEmoji(config?.emoji || '🎫')
+              .setStyle(ButtonStyle.Success)
           );
 
           return interaction.reply({
-            embeds: [configFechamento],
-            components: [botoesFechamento],
+            embeds: [embed],
+            components: [row],
             ...privateReply
           });
         }
 
-        if (
-          interaction.customId === 'ticket_fechar_cancelar' ||
-          interaction.customId === 'ticket_fechar_confirmar'
-        ) {
-          const config = await pegarConfigTickets();
-          const membro = await interaction.guild.members
-            .fetch(interaction.user.id)
-            .catch(() => null);
-
-          const staffAutorizada = Boolean(
-            membro &&
-            config?.staffRoleId &&
-            membro.roles.cache.has(config.staffRoleId)
-          );
-
-          if (
-            !staffAutorizada &&
-            !interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels)
-          ) {
+        // ENVIAR O PAINEL PÚBLICO PARA O CANAL CONFIGURADO
+        if (id === 'ticket_enviar') {
+          if (!config?.panelChannelId || !config?.staffRoleId) {
             return interaction.reply({
-              content: '❌ Apenas a equipe de suporte pode concluir essa ação.',
+              content:
+                '❌ Configure primeiro o canal do painel e o cargo staff na página 1.',
               ...privateReply
             });
           }
 
-          if (interaction.customId === 'ticket_fechar_cancelar') {
-            return interaction.update({
-              content: '❎ Fechamento cancelado.',
-              embeds: [],
-              components: []
+          const canal = await interaction.guild.channels
+            .fetch(config.panelChannelId)
+            .catch(() => null);
+
+          if (!canal || canal.type !== ChannelType.GuildText) {
+            return interaction.reply({
+              content:
+                '❌ O canal configurado não existe ou não é um canal de texto.',
+              ...privateReply
             });
           }
 
-                  const canal = interaction.channel;
+          const embed = new EmbedBuilder()
+            .setColor(config.cor || '#57F287')
+            .setTitle(config.titulo || '🎫 Suporte')
+            .setDescription(
+              config.descricao ||
+              'Clique no botão abaixo para abrir um ticket.'
+            );
+
+          if (config.banner) {
+            embed.setImage(config.banner);
+          }
+
+          const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setCustomId('ticket_abrir')
+              .setLabel(config.botao || 'Abrir Ticket')
+              .setEmoji(config.emoji || '🎫')
+              .setStyle(ButtonStyle.Success)
+          );
+
+          await canal.send({
+            embeds: [embed],
+            components: [row]
+          });
+
+          return interaction.reply({
+            content: `✅ Painel enviado para ${canal}.`,
+            ...privateReply
+          });
+        }
+
+        // ABRIR TICKET: MOSTRAR FORMULÁRIO
+        if (id === 'ticket_abrir') {
+          return interaction.showModal(
+            new ModalBuilder()
+              .setCustomId('ticket_criar_modal')
+              .setTitle('Abrir ticket')
+              .addComponents(
+                new ActionRowBuilder().addComponents(
+                  new TextInputBuilder()
+                    .setCustomId('nick')
+                    .setLabel('Seu nick no jogo')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true)
+                    .setMaxLength(100)
+                ),
+                new ActionRowBuilder().addComponents(
+                  new TextInputBuilder()
+                    .setCustomId('problema')
+                    .setLabel('Tipo de problema')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true)
+                    .setMaxLength(100)
+                ),
+                new ActionRowBuilder().addComponents(
+                  new TextInputBuilder()
+                    .setCustomId('descricao')
+                    .setLabel('Descreva o problema')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true)
+                    .setMaxLength(2000)
+                )
+              )
+          );
+        }
+
+        // ASSUMIR TICKET
+        if (id === 'ticket_assumir') {
+          const configTicket = await pegarConfigTickets(
+            interaction.guildId
+          );
+
+          if (
+            !configTicket?.staffRoleId ||
+            !interaction.member.roles.cache.has(configTicket.staffRoleId)
+          ) {
+            return interaction.reply({
+              content: '❌ Apenas o staff pode assumir tickets.',
+              ...privateReply
+            });
+          }
+
+          const assumidoPor = await assumirTicket(
+            interaction.channelId,
+            interaction.user.id
+          );
+
+          if (assumidoPor) {
+            return interaction.reply({
+              content: `❌ Este ticket já foi assumido por <@${assumidoPor}>.`,
+              ...privateReply
+            });
+          }
+
+          await interaction.reply({
+            content: `✅ Ticket assumido por ${interaction.user}.`
+          });
+
+          if (configTicket.logChannelId) {
+            const logs = await interaction.guild.channels
+              .fetch(configTicket.logChannelId)
+              .catch(() => null);
+
+            if (logs?.isTextBased()) {
+              await logs.send(
+                `📌 ${interaction.user} assumiu o ticket ${interaction.channel}.`
+              );
+            }
+          }
+
+          return;
+        }
+
+        // CHAMAR STAFF
+        if (id === 'ticket_chamar_staff') {
+          const configTicket = await pegarConfigTickets(
+            interaction.guildId
+          );
+
+          if (!configTicket?.staffRoleId) {
+            return interaction.reply({
+              content: '❌ O cargo staff ainda não foi configurado.',
+              ...privateReply
+            });
+          }
+
+          await interaction.reply({
+            content: `🚨 <@&${configTicket.staffRoleId}>, precisamos de atendimento em ${interaction.channel}.`
+          });
+
+          if (configTicket.logChannelId) {
+            const logs = await interaction.guild.channels
+              .fetch(configTicket.logChannelId)
+              .catch(() => null);
+
+            if (logs?.isTextBased()) {
+              await logs.send(
+                `🔔 ${interaction.user} chamou o staff no ticket ${interaction.channel}.`
+              );
+            }
+          }
+
+          return;
+        }
+
+        // PEDIR CONFIRMAÇÃO ANTES DE FECHAR
+        if (id === 'ticket_fechar') {
+          return interaction.reply({
+            content: '❓ O ticket foi resolvido?',
+            components: [criarBotoesFechamento()],
+            ...privateReply
+          });
+        }
+
+        if (id === 'ticket_fechar_cancelar') {
+          return interaction.update({
+            content: '↩️ Fechamento cancelado.',
+            embeds: [],
+            components: []
+          });
+        }
+
+        
+        // CONFIRMAR FECHAMENTO DO TICKET
+        if (id === 'ticket_fechar_confirmar') {
+          const configTicket = await pegarConfigTickets(
+            interaction.guildId
+          );
+
+          const membro = interaction.member;
+          const ehStaff =
+            configTicket?.staffRoleId &&
+            membro.roles.cache.has(configTicket.staffRoleId);
+
+          if (!ehStaff && !membro.permissions.has(
+            PermissionFlagsBits.ManageChannels
+          )) {
+            return interaction.reply({
+              content: '❌ Apenas o staff pode fechar este ticket.',
+              ...privateReply
+            });
+          }
 
           await interaction.update({
-            content: '🔒 Ticket fechado. O canal será removido em instantes.',
+            content: '🔒 Ticket encerrado. O canal será removido em alguns segundos.',
             embeds: [],
             components: []
           });
 
-          await removerTicket(canal.id);
-
-          if (config?.canalLogs) {
-            const canalLogs = await interaction.guild.channels
-              .fetch(config.canalLogs)
+          if (configTicket?.logChannelId) {
+            const logs = await interaction.guild.channels
+              .fetch(configTicket.logChannelId)
               .catch(() => null);
 
-            if (canalLogs?.isTextBased()) {
-              await canalLogs.send({
-                embeds: [
-                  new EmbedBuilder()
-                    .setColor(0xE74C3C)
-                    .setTitle('Ticket fechado')
-                    .addFields(
-                      { name: 'Canal', value: canal.name, inline: true },
-                      { name: 'Fechado por', value: `${interaction.user}`, inline: true }
-                    )
-                    .setTimestamp()
-                ]
-              }).catch(() => {});
+            if (logs?.isTextBased()) {
+              await logs.send(
+                `🔒 Ticket ${interaction.channel.name} encerrado por ${interaction.user}.`
+              );
             }
           }
 
-          return setTimeout(() => {
-            canal.delete('Ticket fechado').catch(() => {});
+          await removerTicket(interaction.channelId);
+
+          setTimeout(() => {
+            interaction.channel.delete(
+              `Ticket encerrado por ${interaction.user.tag}`
+            ).catch(console.error);
           }, 3000);
+
+          return;
         }
       }
 
+      // ENVIO DOS MODAIS
       if (interaction.isModalSubmit()) {
-        if (interaction.customId === 'ticket_modal') {
-          const config = await pegarConfigTickets();
+        const id = interaction.customId;
+        const valor = valorTexto(interaction.fields.getTextInputValue('valor'));
 
-          if (!config) {
+        // SALVAR CONFIGURAÇÕES DO PAINEL DE TICKETS
+        if (id.startsWith('ticket_config_')) {
+          const campo = id.slice('ticket_config_'.length);
+
+          const camposPermitidos = [
+            'panelChannelId',
+            'categoryId',
+            'staffRoleId',
+            'logChannelId',
+            'titulo',
+            'descricao',
+            'banner',
+            'cor',
+            'botao',
+            'emoji'
+          ];
+
+          if (!camposPermitidos.includes(campo)) {
             return interaction.reply({
-              content: '❌ O sistema de tickets ainda não foi configurado.',
+              content: '❌ Configuração desconhecida.',
               ...privateReply
             });
           }
 
+          const dados = {
+            guildId: interaction.guildId,
+            [campo]: valor || null
+          };
+
+          await configurarTickets(dados);
+
+          return interaction.reply({
+            content: '✅ Configuração salva.',
+            ...privateReply
+          });
+        }
+
+        // CRIAR TICKET DEPOIS DO FORMULÁRIO
+        if (id === 'ticket_criar_modal') {
           const nick = interaction.fields.getTextInputValue('nick');
           const problema = interaction.fields.getTextInputValue('problema');
           const descricao = interaction.fields.getTextInputValue('descricao');
 
-          const nomeCanal =
-            `ticket-${interaction.user.username}`
-              .toLowerCase()
-              .replace(/[^a-z0-9-]/g, '')
-              .slice(0, 90) || `ticket-${interaction.user.id}`;
+          const configTicket = await pegarConfigTickets(
+            interaction.guildId
+          );
 
-          const permissoes = [
-            {
-              id: interaction.guild.id,
-              deny: [PermissionFlagsBits.ViewChannel]
-            },
-            {
-              id: interaction.user.id,
-              allow: [
-                PermissionFlagsBits.ViewChannel,
-                PermissionFlagsBits.SendMessages,
-                PermissionFlagsBits.ReadMessageHistory,
-                PermissionFlagsBits.AttachFiles
-              ]
-            }
-          ];
-
-          if (config.staffRoleId) {
-            permissoes.push({
-              id: config.staffRoleId,
-              allow: [
-                PermissionFlagsBits.ViewChannel,
-                PermissionFlagsBits.SendMessages,
-                PermissionFlagsBits.ReadMessageHistory,
-                PermissionFlagsBits.ManageMessages
-              ]
+          if (!configTicket?.staffRoleId) {
+            return interaction.reply({
+              content: '❌ O sistema de tickets ainda não está configurado.',
+              ...privateReply
             });
           }
 
-          const categoria = config.categoriaId
+          const categoria = configTicket.categoryId
             ? await interaction.guild.channels
-                .fetch(config.categoriaId)
+                .fetch(configTicket.categoryId)
                 .catch(() => null)
             : null;
 
           const canal = await interaction.guild.channels.create({
-            name: nomeCanal,
+            name: `ticket-${interaction.user.username}`
+              .toLowerCase()
+              .replace(/[^a-z0-9-]/g, '')
+              .slice(0, 90),
             type: ChannelType.GuildText,
-            parent:
-              categoria?.type === ChannelType.GuildCategory
-                ? categoria.id
-                : undefined,
-            permissionOverwrites: permissoes
+            parent: categoria?.type === ChannelType.GuildCategory
+              ? categoria.id
+              : undefined,
+            topic: `ticket:${interaction.user.id}`,
+            permissionOverwrites: [
+              {
+                id: interaction.guild.id,
+                deny: [PermissionFlagsBits.ViewChannel]
+              },
+              {
+                id: interaction.user.id,
+                allow: [
+                  PermissionFlagsBits.ViewChannel,
+                  PermissionFlagsBits.SendMessages,
+                  PermissionFlagsBits.ReadMessageHistory,
+                  PermissionFlagsBits.AttachFiles
+                ]
+              },
+              {
+                id: configTicket.staffRoleId,
+                allow: [
+                  PermissionFlagsBits.ViewChannel,
+                  PermissionFlagsBits.SendMessages,
+                  PermissionFlagsBits.ReadMessageHistory
+                ]
+              }
+            ]
           });
 
           const embed = new EmbedBuilder()
-            .setColor(0x5865F2)
-            .setTitle(`🎫 ${problema}`)
-            .setDescription(
-              `**Nick:** ${nick}\n` +
-              `**Usuário:** ${interaction.user}\n\n` +
-              `**Descrição:**\n${descricao}`
+            .setColor(configTicket.cor || '#57F287')
+            .setTitle('🎫 Novo ticket')
+            .addFields(
+              { name: 'Usuário', value: `${interaction.user}` },
+              { name: 'Nick no jogo', value: nick },
+              { name: 'Problema', value: problema },
+              { name: 'Descrição', value: descricao }
             )
-            .setFooter({ text: `Ticket de ${interaction.user.username}` })
             .setTimestamp();
 
           const botoes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
               .setCustomId('ticket_assumir')
               .setLabel('Assumir')
-              .setStyle(ButtonStyle.Primary),
+              .setEmoji('🛡️')
+              .setStyle(ButtonStyle.Success),
             new ButtonBuilder()
               .setCustomId('ticket_chamar_staff')
               .setLabel('Chamar Staff')
-              .setStyle(ButtonStyle.Secondary),
+              .setEmoji('📢')
+              .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
               .setCustomId('ticket_fechar')
-              .setLabel('Fechar Ticket')
+              .setLabel('Fechar')
+              .setEmoji('🔒')
               .setStyle(ButtonStyle.Danger)
           );
 
           await canal.send({
-            content: config.staffRoleId
-              ? `<@&${config.staffRoleId}>`
-              : '🎫 Novo ticket aberto.',
+            content: `<@&${configTicket.staffRoleId}>`,
             embeds: [embed],
             components: [botoes],
             allowedMentions: {
-              roles: config.staffRoleId ? [config.staffRoleId] : []
+              roles: [configTicket.staffRoleId]
             }
           });
+
+          if (configTicket.logChannelId) {
+            const logs = await interaction.guild.channels
+              .fetch(configTicket.logChannelId)
+              .catch(() => null);
+
+            if (logs?.isTextBased()) {
+              await logs.send(
+                `🆕 Ticket ${canal} criado por ${interaction.user}.`
+              );
+            }
+          }
 
           return interaction.reply({
             content: `✅ Seu ticket foi criado: ${canal}`,
@@ -543,74 +709,30 @@ export default {
           });
         }
 
-        if (interaction.customId === 'registro_modal') {
-          const texto = interaction.fields.getTextInputValue('registro');
+        // MODAIS DO REGISTRO
+        if (
+          id === 'registro_modal' ||
+          id === 'registro_atualizar_modal'
+        ) {
+          const texto = interaction.fields.getTextInputValue('valor');
 
           await criarRegistro(
-            interaction.guild.id,
+            interaction.guildId,
             interaction.user.id,
             texto
           );
 
           return interaction.reply({
-            content: '✅ Registro criado com sucesso.',
+            content: '✅ Registro salvo.',
             ...privateReply
           });
         }
 
-        if (interaction.customId === 'registro_atualizar_modal') {
-          const texto = interaction.fields.getTextInputValue('registro');
+        // OUTROS MODAIS DE CONFIGURAÇÃO
+        if (id.startsWith('registro_config_')) {
+          const campo = id.slice('registro_config_'.length);
 
-          await criarRegistro(
-            interaction.guild.id,
-            interaction.user.id,
-            texto
-          );
-
-          return interaction.reply({
-            content: '✅ Registro atualizado com sucesso.',
-            ...privateReply
-          });
-        }
-
-        if (interaction.customId.startsWith('ticket_config_')) {
-          const chave = interaction.customId.replace('ticket_config_', '');
-          const permitidas = [
-            'staffRoleId',
-            'canalLogs',
-            'categoriaId',
-            'canalPainel'
-          ];
-
-          if (!permitidas.includes(chave)) {
-            return interaction.reply({
-              content: '❌ Configuração de ticket inválida.',
-              ...privateReply
-            });
-          }
-
-          const valor = interaction.fields.getTextInputValue('valor').trim();
-
-          await configurarTickets({ [chave]: valor });
-
-          return interaction.reply({
-            content: '✅ Configuração de ticket salva.',
-            ...privateReply
-          });
-        }
-
-        if (interaction.customId.startsWith('registro_config_')) {
-          const chave = interaction.customId.replace('registro_config_', '');
-          const valor = interaction.fields.getTextInputValue('valor').trim();
-
-          if (!chave) {
-            return interaction.reply({
-              content: '❌ Configuração de registro inválida.',
-              ...privateReply
-            });
-          }
-
-          await salvarConfig({ [chave]: valor });
+          await salvarConfig(interaction.guildId, campo, valor);
 
           return interaction.reply({
             content: '✅ Configuração de registro salva.',
@@ -618,44 +740,23 @@ export default {
           });
         }
 
-        if (interaction.customId.startsWith('staff_config_')) {
-          const chave = interaction.customId.replace('staff_config_', '');
-          const valor = interaction.fields.getTextInputValue('valor').trim();
+        if (id.startsWith('staff_config_')) {
+          const campo = id.slice('staff_config_'.length);
 
-          if (!chave) {
-            return interaction.reply({
-              content: '❌ Configuração de equipe inválida.',
-              ...privateReply
-            });
-          }
-
-          await salvarConfigStaff({ [chave]: valor });
+          await salvarConfigStaff(interaction.guildId, campo, valor);
 
           return interaction.reply({
-            content: '✅ Configuração da equipe salva.',
+            content: '✅ Configuração de staff salva.',
             ...privateReply
           });
         }
 
-        if (interaction.customId.startsWith('geral_config_')) {
-          const chave = interaction.customId.replace('geral_config_', '');
-          const valor = interaction.fields.getTextInputValue('valor').trim();
-
-          if (!chave) {
-            return interaction.reply({
-              content: '❌ Configuração geral inválida.',
-              ...privateReply
-            });
-          }
+        if (id.startsWith('geral_config_')) {
+          const campo = id.slice('geral_config_'.length);
 
           await serverConfigCollection.updateOne(
             { guildId: interaction.guildId },
-            {
-              $set: {
-                [chave]: valor,
-                guildId: interaction.guildId
-              }
-            },
+            { $set: { [campo]: valor, guildId: interaction.guildId } },
             { upsert: true }
           );
 
@@ -664,11 +765,65 @@ export default {
             ...privateReply
           });
         }
+
+        // MODAIS DE CONFIGURAÇÃO XP
+        if (id === 'xp_cargo_modal') {
+          await salvarConfigXP(interaction.guildId, {
+            cargos: valor
+          });
+
+          return interaction.reply({
+            content: '✅ Configuração de cargos XP salva.',
+            ...privateReply
+          });
+        }
+
+        if (id === 'xp_canal_modal') {
+          await salvarConfigXP(interaction.guildId, {
+            canais: valor
+          });
+
+          return interaction.reply({
+            content: '✅ Configuração de canais XP salva.',
+            ...privateReply
+          });
+        }
+
+        if (id === 'xp_mensagem_modal') {
+          await salvarConfigXP(interaction.guildId, {
+            mensagem: valor
+          });
+
+          return interaction.reply({
+            content: '✅ Mensagem de XP salva.',
+            ...privateReply
+          });
+        }
+
+        if (id === 'xp_cooldown_modal') {
+          const segundos = Number(valor);
+
+          if (!Number.isFinite(segundos) || segundos < 0) {
+            return interaction.reply({
+              content: '❌ Digite um número válido de segundos.',
+              ...privateReply
+            });
+          }
+
+          await salvarConfigXP(interaction.guildId, {
+            cooldown: segundos
+          });
+
+          return interaction.reply({
+            content: '✅ Cooldown XP salvo.',
+            ...privateReply
+          });
+        }
       }
     } catch (error) {
-      console.error('Erro em interactionCreate:', error);
+      console.error('Erro no InteractionCreate:', error);
 
-      if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
+      if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
           content: '❌ Ocorreu um erro ao processar essa interação.',
           ...privateReply
@@ -677,3 +832,5 @@ export default {
     }
   }
 };
+            
+            
