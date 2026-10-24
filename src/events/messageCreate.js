@@ -53,18 +53,19 @@ message.channel.id
 )
 ) return;
 
-// cooldown
+// cooldown separado por servidor e usuário
 
 const tempo =
 config.cooldown || 60;
+const cooldownKey = `${message.guild.id}:${message.author.id}`;
 
 if (
-cooldown.has(message.author.id)
+cooldown.has(cooldownKey)
 ) {
 
 const ultimo =
 cooldown.get(
-message.author.id
+cooldownKey
 );
 
 if (
@@ -77,7 +78,7 @@ return;
 }
 
 cooldown.set(
-message.author.id,
+cooldownKey,
 Date.now()
 );
 
