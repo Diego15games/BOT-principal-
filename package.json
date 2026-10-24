@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "start:local": "node --env-file=.env src/index.js"
+    "start:local": "node --env-file=.env src/index.js",
+    "check": "find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check"
   },
   "dependencies": {
     "discord.js": "^14.22.0",
