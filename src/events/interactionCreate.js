@@ -155,7 +155,7 @@ export default {
             if (category && category.type === ChannelType.GuildCategory) categoryId = category.id;
           }
           const channel = await interaction.guild.channels.create({
-            name: 'ticket-' + interaction.user.username.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 85) || 'ticket-usuario', type: ChannelType.GuildText,
+            name: 'ticket-' + (interaction.user.username.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 85) || 'usuario'), type: ChannelType.GuildText,
             parent: categoryId, topic: 'ticket:' + interaction.user.id,
             permissionOverwrites: [
               { id: interaction.guild.roles.everyone.id, deny: [PermissionFlagsBits.ViewChannel] },
