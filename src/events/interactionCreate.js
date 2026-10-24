@@ -176,7 +176,14 @@ export default {
           const row = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('ticket_fechar_confirmar').setLabel('Sim, fechar').setStyle(ButtonStyle.Danger), new ButtonBuilder().setCustomId('ticket_fechar_cancelar').setLabel('Não').setStyle(ButtonStyle.Secondary));
           return interaction.reply({ content: 'Tem certeza de que deseja fechar este ticket?', components: [row], ...privateReply });
         }
-        if (interaction.customId === 'ticket_fechar_cancelar') return interaction.update({ content: 'Fechamento cancelado.', components: [] });
+        if (interaction.customId === 'ticket_fechar_cancelar') {
+          if (!isTicketChannel(interaction.channel)) return interaction.reply({ content: 'Este botão só funciona dentro de um ticket.', ...privateReply });
+          const configCancelar = await pegarConfigTickets(interaction.guildId);
+          const staffAutorizada = Boolean(configCancelar?.staffRoleId && interaction.member.roles?.cache?.has(configCancelar.staffRoleId));
+          const podeGerenciar = interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels);
+          if (!staffAutorizada && !podeGerenciar) return interaction.reply({ content: '❌ Apenas a staff configurada pode cancelar o fechamento.', ...privateReply });
+          return interaction.update({ content: 'Fechamento cancelado.', components: [] });
+        }
         if (interaction.customId === 'ticket_fechar_confirmar') {
           if (!isTicketChannel(interaction.channel)) return interaction.reply({ content: 'Canal inválido.', ...privateReply });
           if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) && !interaction.member.roles?.cache?.has(config?.staffRoleId)) return interaction.reply({ content: 'Apenas a staff configurada pode fechar o ticket.', ...privateReply });
