@@ -13,12 +13,17 @@ export async function getStaff(userId) {
   return { ...PADRAO, historico: [], ...dados };
 }
 export async function addPoints(userId, amount = 1) {
+  if (!Number.isSafeInteger(amount)) throw new Error('A quantidade de pontos deve ser um inteiro válido.');
   await collection.updateOne({ userId }, { $inc: { pontos: amount }, $setOnInsert: { advertencias: 0, tickets: 0, historico: [] } }, { upsert: true });
   await collection.updateOne({ userId, pontos: { $lt: 0 } }, { $set: { pontos: 0 } });
   return await getStaff(userId);
 }
-export async function removePoints(userId, amount = 1) { return await addPoints(userId, -Math.abs(amount)); }
+export async function removePoints(userId, amount = 1) {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('A quantidade de pontos deve ser um inteiro não negativo.');
+  return await addPoints(userId, -amount);
+}
 export async function addWarning(userId, motivo = 'Não informado', staffId = 'Desconhecido') {
+  motivo = String(motivo || 'Não informado').trim().slice(0, 1000);
   await collection.updateOne({ userId }, { $inc: { advertencias: 1 }, $push: { historico: { motivo, staffId, data: dataAgora() } }, $setOnInsert: { pontos: 0, tickets: 0 } }, { upsert: true });
   return await getStaff(userId);
 }
