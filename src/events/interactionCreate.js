@@ -3,6 +3,9 @@ import { executarBotoesXP } from '../panels/xpButtons.js';
 import { pegarConfig, criarRegistro, salvarConfig } from '../systems/registro.js';
 import { pegarConfigTickets, configurarTickets, assumirTicket, pegarAssumidoPor, removerTicket, isTicketChannel } from '../systems/tickets.js';
 import { pegarConfigXP, salvarConfigXP } from '../systems/xp.js';
+import { salvarConfigStaff } from '../systems/staff.js';
+import { db } from '../systems/database.js';
+const serverConfigCollection = db.collection('serverConfig');
 
 const privateReply = { flags: MessageFlags.Ephemeral };
 function makeModal(id, title, field, label, style = TextInputStyle.Short, oldValue = '') {
@@ -107,6 +110,16 @@ export default {
         if (interaction.customId === 'painel_principal') { const p = await import('../panels/painelPrincipal.js'); return interaction.update(p.painelPrincipal()); }
         const pageModules = { painel_xp: '../panels/painelXP.js', painel_registro: '../panels/painelRegistro.js', painel_registro2: '../panels/painelRegistro2.js', painel_staff: '../panels/painelStaff.js', painel_geral: '../panels/painelGeral.js', painel_ticket: '../panels/painelTicket.js', painel_ticket2: '../panels/painelTicket2.js', ticket_pagina2: '../panels/painelTicket2.js', ticket_pagina3: '../panels/painelTicket3.js', registro_pagina2: '../panels/painelRegistro2.js', registro_pagina3: '../panels/painelRegistro3.js', painel_registro3: '../panels/painelRegistro3.js' };
         if (pageModules[interaction.customId]) { const p = await import(pageModules[interaction.customId]); return interaction.update(Object.values(p).find(x => typeof x === 'function')()); }
+        const staffButtons = { staff_mod: ['modRoleId', 'Cargo Moderador'], staff_admin: ['adminRoleId', 'Cargo Administrador'], staff_dono: ['ownerRoleId', 'Cargo Fundador'], staff_logs: ['logChannelId', 'Canal de Logs da Staff'] };
+        if (staffButtons[interaction.customId]) {
+          const [key, label] = staffButtons[interaction.customId];
+          return interaction.showModal(makeModal('staff_config_' + key, label, 'valor', 'ID do cargo ou canal'));
+        }
+        const generalButtons = { geral_logs: ['logChannelId', 'Canal de Logs'], geral_boasvindas: ['welcomeChannelId', 'Canal de Boas-vindas'], geral_saida: ['leaveChannelId', 'Canal de Saída'], geral_cor: ['embedColor', 'Cor dos Embeds'] };
+        if (generalButtons[interaction.customId]) {
+          const [key, label] = generalButtons[interaction.customId];
+          return interaction.showModal(makeModal('geral_config_' + key, label, 'valor', key === 'embedColor' ? 'Cor hexadecimal, exemplo #5865F2' : 'ID do canal'));
+        }
         const config = await pegarConfigTickets(interaction.guildId);
         const configButtons = {
           ticket_canal: ['canal','Canal do Painel','ID do canal','panelChannelId'], ticket_categoria: ['categoria','Categoria dos Tickets','ID da categoria','categoryId'],
@@ -195,6 +208,27 @@ export default {
           if (spec[2] === 'map') { try { value = parsePairs(raw); if (spec[1] !== 'cargos') value = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, Number(v)])); } catch (e) { return interaction.reply({ content: '❌ ' + e.message, ...privateReply }); } }
           if (spec[2] === 'list') value = raw.split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
           cfg[spec[1]] = value; await salvarConfigXP(cfg); return interaction.reply({ content: '✅ Configuração de XP salva.', ...privateReply });
+        }
+        if (interaction.customId.startsWith('staff_config_')) {
+          const key = interaction.customId.slice('staff_config_'.length);
+          const allowed = ['modRoleId', 'adminRoleId', 'ownerRoleId', 'logChannelId'];
+          if (!allowed.includes(key)) return interaction.reply({ content: 'Configuração inválida.', ...privateReply });
+          const value = interaction.fields.getTextInputValue('valor').trim();
+          if (!/^\d{17,20}$/.test(value)) return interaction.reply({ content: 'Informe um ID válido do Discord.', ...privateReply });
+          const current = await db.collection('staffConfig').findOne({ guildId: interaction.guildId }) || {}; delete current._id;
+          await salvarConfigStaff({ ...current, guildId: interaction.guildId, [key]: value });
+          return interaction.reply({ content: '✅ Configuração da staff salva.', ...privateReply });
+        }
+        if (interaction.customId.startsWith('geral_config_')) {
+          const key = interaction.customId.slice('geral_config_'.length);
+          const allowed = ['logChannelId', 'welcomeChannelId', 'leaveChannelId', 'embedColor'];
+          const value = interaction.fields.getTextInputValue('valor').trim();
+          if (!allowed.includes(key)) return interaction.reply({ content: 'Configuração inválida.', ...privateReply });
+          if (key === 'embedColor' && !/^#?[0-9a-f]{6}$/i.test(value)) return interaction.reply({ content: 'Use uma cor hexadecimal, exemplo #5865F2.', ...privateReply });
+          if (key !== 'embedColor' && !/^\d{17,20}$/.test(value)) return interaction.reply({ content: 'Informe um ID válido do Discord.', ...privateReply });
+          const saved = key === 'embedColor' && !value.startsWith('#') ? '#' + value : value;
+          await serverConfigCollection.updateOne({ guildId: interaction.guildId }, { $set: { guildId: interaction.guildId, [key]: saved } }, { upsert: true });
+          return interaction.reply({ content: '✅ Configuração geral salva.', ...privateReply });
         }
         if (interaction.customId.startsWith('ticket_config_')) {
           const field = interaction.customId.slice('ticket_config_'.length);
