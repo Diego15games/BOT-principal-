@@ -784,6 +784,18 @@ if (id.startsWith('ticket_config_')) {
             });
           }
 
+          // Validar o cargo da equipe antes de criar o canal.
+          const cargoStaff = await interaction.guild.roles
+            .fetch(configTicket.staffRoleId)
+            .catch(() => null);
+
+          if (!cargoStaff) {
+            return interaction.reply({
+              content: '❌ O cargo da equipe configurado nos tickets não existe mais. Configure novamente o cargo de staff.',
+              ...privateReply
+            });
+          }
+
           const categoria = configTicket.categoryId
             ? await interaction.guild.channels
                 .fetch(configTicket.categoryId)
@@ -815,7 +827,7 @@ if (id.startsWith('ticket_config_')) {
                 ]
               },
               {
-                id: configTicket.staffRoleId,
+                id: cargoStaff.id,
                 allow: [
                   PermissionFlagsBits.ViewChannel,
                   PermissionFlagsBits.SendMessages,
