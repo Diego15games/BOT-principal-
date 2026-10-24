@@ -554,13 +554,16 @@ export default {
       }
 
       // ENVIO DOS MODAIS
-      if (interaction.isModalSubmit()) {
-        const id = interaction.customId;
-        const valor = valorTexto(interaction.fields.getTextInputValue('valor'));
+if (interaction.isModalSubmit()) {
+  const id = interaction.customId;
 
-        // SALVAR CONFIGURAÇÕES DO PAINEL DE TICKETS
-        if (id.startsWith('ticket_config_')) {
-          const campo = id.slice('ticket_config_'.length);
+// SALVAR CONFIGURAÇÕES DO PAINEL DE TICKETS
+if (id.startsWith('ticket_config_')) {
+  const valor = valorTexto(
+    interaction.fields.getTextInputValue('valor')
+  );
+
+  const campo = id.slice('ticket_config_'.length);
 
           const camposPermitidos = [
             'panelChannelId',
@@ -714,7 +717,9 @@ export default {
           id === 'registro_modal' ||
           id === 'registro_atualizar_modal'
         ) {
-          const texto = interaction.fields.getTextInputValue('valor');
+          const texto = valorTexto(
+  interaction.fields.getTextInputValue('valor')
+);
 
           await criarRegistro(
             interaction.guildId,
