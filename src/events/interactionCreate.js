@@ -809,7 +809,9 @@ if (id === 'ticket_notificar_player') {
               await logs.send({
                 embeds: [embedLog],
                 files: arquivos,
-                allowedMentions: { users: [playerId, responsavelId, interaction.user.id].filter(Boolean) }
+                allowedMentions: { users: [...new Set([playerId, responsavelId, interaction.user.id].filter(Boolean))] }
+              }).catch(erroLog => {
+                console.error('Erro ao enviar log do ticket:', erroLog);
               });
             }
           }
