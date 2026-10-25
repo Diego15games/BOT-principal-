@@ -784,12 +784,17 @@ if (id === 'ticket_notificar_player') {
               const embedLog = new EmbedBuilder()
                 .setColor('#5865F2')
                 .setDescription(
-                  `🔒 O ticket de **${nomePlayer}** foi fechado por **${nomeStaff}**\\n\\n` +
-                  `> Aqui estão algumas informações importantes sobre o atendimento:\\n\\n` +
-                  `- **Duração:** ${duracaoTexto}\\n` +
-                  `- **Criado** <t:${criadoTimestamp}:R>: <t:${criadoTimestamp}:s>\\n` +
-                  `- **Encerrado** <t:${encerradoTimestamp}:R>: <t:${encerradoTimestamp}:s>\\n\\n` +
-                  `Você pode acessar todo o histórico do suporte através do link abaixo.`
+                  `🔒 O ticket de **${nomePlayer}** foi fechado por **${nomeStaff}**
+
+` +
+                  `> Aqui estão algumas informações importantes sobre o atendimento:
+
+` +
+                  `- **Duração:** ${duracaoTexto}
+` +
+                  `- **Criado** <t:${criadoTimestamp}:R>: <t:${criadoTimestamp}:s>
+` +
+                  `- **Encerrado** <t:${encerradoTimestamp}:R>: <t:${encerradoTimestamp}:s>`
                 )
                 .setFooter({ text: `Canal: #${canalTicket.name}` })
                 .setTimestamp();
