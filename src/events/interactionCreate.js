@@ -9,7 +9,8 @@ import {
   MessageFlags,
   EmbedBuilder,
   ButtonBuilder,
-  ButtonStyle
+  ButtonStyle,
+  AttachmentBuilder
 } from 'discord.js';
 
 import { executarBotoesXP } from '../panels/xpButtons.js';
@@ -60,6 +61,88 @@ function staffRoleIds(config) {
 function memberIsStaff(member, config) {
   const ids = staffRoleIds(config);
   return ids.some(id => member?.roles?.cache?.has(id));
+}
+
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+async function gerarTranscript(channel) {
+  const mensagens = [];
+  let before;
+
+  // Busca o histórico em páginas de até 100 mensagens, do mais recente ao mais antigo.
+  while (mensagens.length < 5000) {
+    const pagina = await channel.messages.fetch({
+      limit: 100,
+      ...(before ? { before } : {})
+    });
+
+    if (!pagina.size) break;
+
+    mensagens.push(...pagina.values());
+    before = pagina.last().id;
+
+    if (pagina.size < 100) break;
+  }
+
+  mensagens.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+
+  const linhas = mensagens.map(msg => {
+    const autor = escapeHtml(msg.author?.tag || 'Usuário desconhecido');
+    const avatar = msg.author?.displayAvatarURL?.({ extension: 'png', size: 64 }) || '';
+    const data = escapeHtml(new Date(msg.createdTimestamp).toLocaleString('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'medium',
+      timeZone: 'UTC'
+    }));
+    const conteudo = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
+    const anexos = [...msg.attachments.values()].map(anexo =>
+      '<p>📎 <a href="' + escapeHtml(anexo.url) + '">' +
+      escapeHtml(anexo.name || 'Arquivo anexado') + '</a></p>'
+    ).join('');
+    const embeds = msg.embeds.map(embed => {
+      const titulo = embed.title ? '<strong>' + escapeHtml(embed.title) + '</strong>' : '';
+      const descricao = embed.description ? '<p>' + escapeHtml(embed.description) + '</p>' : '';
+      return '<div class="embed">' + titulo + descricao + '</div>';
+    }).join('');
+
+    return '<article class="message"><img class="avatar" src="' + escapeHtml(avatar) +
+      '" alt=""><div class="body"><div class="meta"><strong>' + autor +
+      '</strong> <time>' + data + '</time></div><div>' +
+      (conteudo || (anexos || embeds ? '' : '<em>Mensagem sem texto</em>')) +
+      '</div>' + anexos + embeds + '</div></article>';
+  }).join('\n');
+
+  const html = `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transcript - ${escapeHtml(channel.name)}</title>
+<style>
+body{font-family:Arial,sans-serif;background:#313338;color:#dbdee1;margin:0;padding:24px}
+header{max-width:900px;margin:0 auto 20px;padding:18px;background:#232428;border-radius:10px}
+h1{font-size:22px;margin:0 0 8px}.message{display:flex;gap:12px;max-width:900px;margin:10px auto;padding:14px;background:#2b2d31;border-radius:8px;overflow-wrap:anywhere}
+.avatar{width:40px;height:40px;border-radius:50%}.body{min-width:0;flex:1}.meta{margin-bottom:6px}.meta time{font-size:12px;color:#949ba4;margin-left:8px}
+a{color:#00a8fc}.embed{border-left:4px solid #5865f2;padding:8px 12px;margin-top:8px;background:#232428;border-radius:4px}
+</style>
+</head>
+<body>
+<header><h1>Transcript: #${escapeHtml(channel.name)}</h1><div>Mensagens registradas: ${mensagens.length}</div><div>Gerado em: ${escapeHtml(new Date().toLocaleString('pt-BR'))}</div></header>
+${linhas}
+</body>
+</html>`;
+
+  return new AttachmentBuilder(Buffer.from(html, 'utf8'), {
+    name: `transcript-${channel.name}.html`
+  });
 }
 
 function makeModal(
@@ -615,18 +698,11 @@ if (id === 'ticket_notificar_player') {
         
         // CONFIRMAR FECHAMENTO DO TICKET
         if (id === 'ticket_fechar_confirmar') {
-          const configTicket = await pegarConfigTickets(
-            interaction.guildId
-          );
-
+          const configTicket = await pegarConfigTickets(interaction.guildId);
           const membro = interaction.member;
-          const ehStaff =
-            configTicket?.staffRoleId &&
-            memberIsStaff(membro, configTicket);
+          const ehStaff = configTicket?.staffRoleId && memberIsStaff(membro, configTicket);
 
-          if (!ehStaff && !membro.permissions.has(
-            PermissionFlagsBits.ManageChannels
-          )) {
+          if (!ehStaff && !membro.permissions.has(PermissionFlagsBits.ManageChannels)) {
             return interaction.reply({
               content: '❌ Apenas o staff pode fechar este ticket.',
               ...privateReply
@@ -634,10 +710,18 @@ if (id === 'ticket_notificar_player') {
           }
 
           await interaction.update({
-            content: '🔒 Ticket encerrado. O canal será removido em alguns segundos.',
+            content: '🔒 Ticket encerrado. Estou salvando o histórico antes de remover o canal.',
             embeds: [],
             components: []
           });
+
+          const canalTicket = interaction.channel;
+          let transcript = null;
+          try {
+            transcript = await gerarTranscript(canalTicket);
+          } catch (erroTranscript) {
+            console.error('Erro ao gerar transcript do ticket:', erroTranscript);
+          }
 
           if (configTicket?.logChannelId) {
             const logs = await interaction.guild.channels
@@ -645,18 +729,28 @@ if (id === 'ticket_notificar_player') {
               .catch(() => null);
 
             if (logs?.isTextBased()) {
-              await logs.send(
-                `🔒 Ticket ${interaction.channel.name} encerrado por ${interaction.user}.`
-              );
+              const playerId = getTicketCreatorId(canalTicket);
+              const responsavelId = await pegarAssumidoPor(canalTicket.id).catch(() => null);
+              const arquivos = transcript ? [transcript] : [];
+
+              await logs.send({
+                content:
+                  `🔒 **Ticket encerrado**\n` +
+                  `**Canal:** #${canalTicket.name}\n` +
+                  `**Aberto por:** ${playerId ? `<@${playerId}>` : 'Não identificado'}\n` +
+                  `**Responsável:** ${responsavelId ? `<@${responsavelId}>` : 'Não assumido'}\n` +
+                  `**Encerrado por:** ${interaction.user}\n` +
+                  `**Transcript:** ${transcript ? 'arquivo HTML anexado' : 'não foi possível gerar o arquivo'}`,
+                files: arquivos,
+                allowedMentions: { users: [playerId, responsavelId].filter(Boolean) }
+              });
             }
           }
 
-          await removerTicket(interaction.channelId);
+          await removerTicket(canalTicket.id);
 
           setTimeout(() => {
-            interaction.channel.delete(
-              `Ticket encerrado por ${interaction.user.tag}`
-            ).catch(console.error);
+            canalTicket.delete(`Ticket encerrado por ${interaction.user.tag}`).catch(console.error);
           }, 3000);
 
           return;
