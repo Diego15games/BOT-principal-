@@ -73,7 +73,7 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-async function gerarTranscript(channel) {
+async function gerarTranscript(channel, guild) {
   const mensagens = [];
   let before;
 
@@ -92,6 +92,32 @@ async function gerarTranscript(channel) {
     if (pagina.size < 100) break;
   }
 
+  const membros = new Map();
+  const cargos = new Map();
+  const canais = new Map();
+  const todosOsTextos = mensagens.map(msg => msg.content || '').join('\\n');
+  for (const match of todosOsTextos.matchAll(/<@&(\\d{17,20})>/g)) {
+    const id = match[1];
+    if (!cargos.has(id)) {
+      const cargo = await guild.roles.fetch(id).catch(() => null);
+      cargos.set(id, cargo?.name || 'Cargo desconhecido');
+    }
+  }
+  for (const match of todosOsTextos.matchAll(/<@!?(\\d{17,20})>/g)) {
+    const id = match[1];
+    if (!membros.has(id)) {
+      const membro = await guild.members.fetch(id).catch(() => null);
+      membros.set(id, membro?.displayName || membro?.user?.username || 'Usuário desconhecido');
+    }
+  }
+  for (const match of todosOsTextos.matchAll(/<#(\\d{17,20})>/g)) {
+    const id = match[1];
+    if (!canais.has(id)) {
+      const canalMencionado = await guild.channels.fetch(id).catch(() => null);
+      canais.set(id, canalMencionado?.name || 'canal desconhecido');
+    }
+  }
+
   mensagens.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
   const linhas = mensagens.map(msg => {
@@ -102,7 +128,11 @@ async function gerarTranscript(channel) {
       timeStyle: 'medium',
       timeZone: 'UTC'
     }));
-    const conteudo = escapeHtml(msg.content || '').replace(/\n/g, '<br>');
+    const textoLegivel = String(msg.content || '')
+      .replace(/<@&(\\d{17,20})>/g, (_, id) => '@' + (cargos.get(id) || 'Cargo desconhecido'))
+      .replace(/<@!?(\\d{17,20})>/g, (_, id) => '@' + (membros.get(id) || 'Usuário desconhecido'))
+      .replace(/<#(\\d{17,20})>/g, (_, id) => '#' + (canais.get(id) || 'canal desconhecido'));
+    const conteudo = escapeHtml(textoLegivel).replace(/\\n/g, '<br>');
     const anexos = [...msg.attachments.values()].map(anexo =>
       '<p>📎 <a href="' + escapeHtml(anexo.url) + '">' +
       escapeHtml(anexo.name || 'Arquivo anexado') + '</a></p>'
@@ -718,7 +748,7 @@ if (id === 'ticket_notificar_player') {
           const canalTicket = interaction.channel;
           let transcript = null;
           try {
-            transcript = await gerarTranscript(canalTicket);
+            transcript = await gerarTranscript(canalTicket, interaction.guild);
           } catch (erroTranscript) {
             console.error('Erro ao gerar transcript do ticket:', erroTranscript);
           }
