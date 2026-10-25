@@ -746,6 +746,16 @@ if (id === 'ticket_notificar_player') {
           });
 
           const canalTicket = interaction.channel;
+          const criadoEm = canalTicket.createdTimestamp || Date.now();
+          const encerradoEm = Date.now();
+          const duracaoMs = Math.max(0, encerradoEm - criadoEm);
+          const totalMinutos = Math.floor(duracaoMs / 60000);
+          const horas = Math.floor(totalMinutos / 60);
+          const minutos = totalMinutos % 60;
+          const duracaoTexto = horas > 0
+            ? `${horas} hora${horas === 1 ? '' : 's'} e ${minutos} min`
+            : `${minutos} min`;
+
           let transcript = null;
           try {
             transcript = await gerarTranscript(canalTicket, interaction.guild);
@@ -762,17 +772,44 @@ if (id === 'ticket_notificar_player') {
               const playerId = getTicketCreatorId(canalTicket);
               const responsavelId = await pegarAssumidoPor(canalTicket.id).catch(() => null);
               const arquivos = transcript ? [transcript] : [];
+              const membroPlayer = playerId
+                ? await interaction.guild.members.fetch(playerId).catch(() => null)
+                : null;
+              const membroStaff = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
+              const nomePlayer = membroPlayer?.displayName || membroPlayer?.user?.username || 'usuário não identificado';
+              const nomeStaff = membroStaff?.displayName || membroStaff?.user?.username || interaction.user.username;
+              const criadoTimestamp = Math.floor(criadoEm / 1000);
+              const encerradoTimestamp = Math.floor(encerradoEm / 1000);
+
+              const embedLog = new EmbedBuilder()
+                .setColor('#5865F2')
+                .setDescription(
+                  `🔒 O ticket de **${nomePlayer}** foi fechado por **${nomeStaff}**\\n\\n` +
+                  `> Aqui estão algumas informações importantes sobre o atendimento:\\n\\n` +
+                  `- **Duração:** ${duracaoTexto}\\n` +
+                  `- **Criado** <t:${criadoTimestamp}:R>: <t:${criadoTimestamp}:s>\\n` +
+                  `- **Encerrado** <t:${encerradoTimestamp}:R>: <t:${encerradoTimestamp}:s>\\n\\n` +
+                  `Você pode acessar todo o histórico do suporte através do link abaixo.`
+                )
+                .setFooter({ text: `Canal: #${canalTicket.name}` })
+                .setTimestamp();
+
+              if (transcript) {
+                embedLog.addFields({
+                  name: 'Histórico do suporte',
+                  value: '📎 O arquivo HTML está anexado nesta mensagem.'
+                });
+              } else {
+                embedLog.addFields({
+                  name: 'Histórico do suporte',
+                  value: '⚠️ Não foi possível gerar o arquivo HTML.'
+                });
+              }
 
               await logs.send({
-                content:
-                  `🔒 **Ticket encerrado**\n` +
-                  `**Canal:** #${canalTicket.name}\n` +
-                  `**Aberto por:** ${playerId ? `<@${playerId}>` : 'Não identificado'}\n` +
-                  `**Responsável:** ${responsavelId ? `<@${responsavelId}>` : 'Não assumido'}\n` +
-                  `**Encerrado por:** ${interaction.user}\n` +
-                  `**Transcript:** ${transcript ? 'arquivo HTML anexado' : 'não foi possível gerar o arquivo'}`,
+                embeds: [embedLog],
                 files: arquivos,
-                allowedMentions: { users: [playerId, responsavelId].filter(Boolean) }
+                allowedMentions: { users: [playerId, responsavelId, interaction.user.id].filter(Boolean) }
               });
             }
           }
