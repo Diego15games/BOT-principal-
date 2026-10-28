@@ -708,6 +708,46 @@ if (id === 'ticket_notificar_player') {
   return;
                                      }
 
+        // CHAMAR A STAFF PARA ESTE TICKET
+        if (id === 'ticket_chamar_staff') {
+          const configTicket = await pegarConfigTickets(interaction.guildId);
+          const idsStaff = staffRoleIds(configTicket);
+
+          if (!idsStaff.length) {
+            return interaction.reply({
+              content: '❌ Nenhum cargo staff foi configurado.',
+              ...privateReply
+            });
+          }
+
+          const cargosValidos = idsStaff.filter(roleId =>
+            interaction.guild.roles.cache.has(roleId)
+          );
+
+          if (!cargosValidos.length) {
+            return interaction.reply({
+              content: '❌ Os cargos staff configurados não foram encontrados.',
+              ...privateReply
+            });
+          }
+
+          await interaction.reply({
+            content: `📣 A staff foi chamada para atender este ticket! ${cargosValidos.map(roleId => `<@&${roleId}>`).join(' ')}`,
+            allowedMentions: { roles: cargosValidos }
+          });
+
+          if (configTicket?.logChannelId) {
+            const logs = await interaction.guild.channels.fetch(configTicket.logChannelId).catch(() => null);
+            if (logs?.isTextBased()) {
+              await logs.send({
+                content: `📣 ${interaction.user} chamou a staff no ticket ${interaction.channel}.`,
+                allowedMentions: { users: [interaction.user.id] }
+              }).catch(console.error);
+            }
+          }
+          return;
+        }
+
         // PEDIR CONFIRMAÇÃO ANTES DE FECHAR
         if (id === 'ticket_fechar') {
           return interaction.reply({
@@ -1057,6 +1097,12 @@ if (configTicket.banner) {
     .setLabel('Notificar Player')
     .setEmoji('🔔')
     .setStyle(ButtonStyle.Secondary),
+
+  new ButtonBuilder()
+    .setCustomId('ticket_chamar_staff')
+    .setLabel('Chamar Staff')
+    .setEmoji('📣')
+    .setStyle(ButtonStyle.Primary),
 
   new ButtonBuilder()
     .setCustomId('ticket_fechar')
