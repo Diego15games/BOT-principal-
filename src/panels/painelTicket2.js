@@ -10,7 +10,7 @@ export function painelTicket2() {
 const embed = new EmbedBuilder()
 .setColor("#57F287")
 .setTitle("🎫 Sistema de Tickets (2/3)")
-.setDescription("Personalize o painel de tickets.");
+.setDescription("Personalize título, descrição, banner e cor do painel público.");
 
 const row1 = new ActionRowBuilder()
 .addComponents(
