@@ -1043,6 +1043,17 @@ if (id.startsWith('ticket_config_')) {
             });
           }
 
+          // Impedir que a mesma pessoa abra vários tickets ao mesmo tempo.
+          const ticketAberto = interaction.guild.channels.cache.find(c =>
+            c.type === ChannelType.GuildText && c.topic === `ticket:${interaction.user.id}`
+          );
+          if (ticketAberto) {
+            return interaction.reply({
+              content: `❌ Você já tem um ticket aberto: ${ticketAberto}`,
+              ...privateReply
+            });
+          }
+
           // Validar todos os cargos de staff configurados (separados por espaço ou vírgula).
           const staffIds = staffRoleIds(configTicket);
           const cargosStaff = await Promise.all(
@@ -1132,9 +1143,9 @@ if (configTicket.banner) {
 
           await canal.send({
             content:
-              `👋 Olá, ${interaction.user}!\\n\\n` +
-              `✅ Seu ticket foi aberto com sucesso!\\n` +
-              `⏳ Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.\\n\\n` +
+              `👋 Olá, ${interaction.user}!\n\n` +
+              `✅ Seu ticket foi aberto com sucesso!\n` +
+              `⏳ Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.\n\n` +
               `📢 **Staff notificada:** ${staffIds.map(id => `<@&${id}>`).join(' ')}`,
             embeds: [embed],
             components: [botoes1, botoes2],
