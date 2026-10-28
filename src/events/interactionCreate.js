@@ -708,6 +708,46 @@ if (id === 'ticket_notificar_player') {
   return;
                                      }
 
+        // TRANCAR OU DESTRANCAR O TICKET
+        if (id === 'ticket_trancar') {
+          const configTicket = await pegarConfigTickets(interaction.guildId);
+          const membro = interaction.member;
+          const ehStaff = configTicket?.staffRoleId && memberIsStaff(membro, configTicket);
+
+          if (!ehStaff && !membro.permissions.has(PermissionFlagsBits.ManageChannels)) {
+            return interaction.reply({ content: '❌ Apenas a staff pode trancar ou destrancar este ticket.', ...privateReply });
+          }
+
+          const playerId = getTicketCreatorId(interaction.channel);
+          if (!playerId) {
+            return interaction.reply({ content: '❌ Não consegui identificar quem abriu este ticket.', ...privateReply });
+          }
+
+          const overwriteAtual = interaction.channel.permissionOverwrites.cache.get(playerId);
+          const estaTrancado = overwriteAtual?.deny?.has(PermissionFlagsBits.SendMessages) === true;
+
+          await interaction.channel.permissionOverwrites.edit(playerId, {
+            ViewChannel: true,
+            SendMessages: estaTrancado,
+            ReadMessageHistory: true,
+            AttachFiles: estaTrancado
+          });
+
+          await interaction.reply({
+            content: estaTrancado
+              ? '🔓 O ticket foi destrancado. O jogador já pode enviar mensagens novamente.'
+              : '🔐 O ticket foi trancado. O jogador ainda pode ver o histórico, mas não enviar mensagens.'
+          });
+
+          if (configTicket?.logChannelId) {
+            const logs = await interaction.guild.channels.fetch(configTicket.logChannelId).catch(() => null);
+            if (logs?.isTextBased()) {
+              await logs.send(`🔐 ${interaction.user} ${estaTrancado ? 'destrancou' : 'trancou'} o ticket ${interaction.channel}.`).catch(console.error);
+            }
+          }
+          return;
+        }
+
         // CHAMAR A STAFF PARA ESTE TICKET
         if (id === 'ticket_chamar_staff') {
           const configTicket = await pegarConfigTickets(interaction.guildId);
@@ -1078,53 +1118,31 @@ if (configTicket.banner) {
   embed.setImage(configTicket.banner);
 }
 
-          const botoes = new ActionRowBuilder().addComponents(
-  new ButtonBuilder()
-    .setCustomId('ticket_assumir')
-    .setLabel('Assumir')
-    .setEmoji('🛡️')
-    .setStyle(ButtonStyle.Success),
+          const botoes1 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('ticket_assumir').setLabel('Assumir').setEmoji('🛡️').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId('ticket_add_staff').setLabel('Add Staff').setEmoji('👥').setStyle(ButtonStyle.Primary).setDisabled(true),
+            new ButtonBuilder().setCustomId('ticket_notificar_player').setLabel('Notificar Player').setEmoji('🔔').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('ticket_chamar_staff').setLabel('Chamar Staff').setEmoji('📣').setStyle(ButtonStyle.Primary)
+          );
 
-  new ButtonBuilder()
-    .setCustomId('ticket_add_staff')
-    .setLabel('Add Staff')
-    .setEmoji('👥')
-    .setStyle(ButtonStyle.Primary)
-    .setDisabled(true),
+          const botoes2 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId('ticket_trancar').setLabel('Trancar').setEmoji('🔐').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('ticket_fechar').setLabel('Encerrar').setEmoji('🔒').setStyle(ButtonStyle.Danger)
+          );
 
-  new ButtonBuilder()
-    .setCustomId('ticket_notificar_player')
-    .setLabel('Notificar Player')
-    .setEmoji('🔔')
-    .setStyle(ButtonStyle.Secondary),
-
-  new ButtonBuilder()
-    .setCustomId('ticket_chamar_staff')
-    .setLabel('Chamar Staff')
-    .setEmoji('📣')
-    .setStyle(ButtonStyle.Primary),
-
-  new ButtonBuilder()
-    .setCustomId('ticket_fechar')
-    .setLabel('Fechar')
-    .setEmoji('🔒')
-    .setStyle(ButtonStyle.Danger)
-);
-await canal.send({
-  content:
-    `👋 Olá, ${interaction.user}!\n\n` +
-    `✅ Seu ticket foi aberto com sucesso!\n` +
-    `⏳ Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.\n\n` +
-    `📢 **Staff notificada:** ${staffIds.map(id => `<@&${id}>`).join(' ')}`,
-
-  embeds: [embed],
-  components: [botoes],
-
-  allowedMentions: {
-    users: [interaction.user.id],
-    roles: staffIds
-  }
-});
+          await canal.send({
+            content:
+              `👋 Olá, ${interaction.user}!\\n\\n` +
+              `✅ Seu ticket foi aberto com sucesso!\\n` +
+              `⏳ Aguarde um momento até que um ADM leia sua solicitação e faça o atendimento.\\n\\n` +
+              `📢 **Staff notificada:** ${staffIds.map(id => `<@&${id}>`).join(' ')}`,
+            embeds: [embed],
+            components: [botoes1, botoes2],
+            allowedMentions: {
+              users: [interaction.user.id],
+              roles: staffIds
+            }
+          });
 
           if (configTicket.logChannelId) {
             const logs = await interaction.guild.channels
