@@ -5,6 +5,8 @@ adicionarXP,
 definirLevel
 } from '../systems/xp.js';
 
+import { pegarConfigTickets } from '../systems/tickets.js';
+
 const cooldown = new Map();
 
 // Cache curto da config de XP: evita uma consulta ao Mongo
@@ -39,6 +41,31 @@ async execute(message) {
 if (message.author.bot) return;
 
 if (!message.guild || !message.member) return;
+
+// Registrar mensagens enviadas dentro dos tickets no canal de logs.
+if (message.channel.topic?.startsWith('ticket:')) {
+  try {
+    const configTicket = await pegarConfigTickets(message.guild.id);
+    const logChannel = configTicket?.logChannelId
+      ? await message.guild.channels.fetch(configTicket.logChannelId).catch(() => null)
+      : null;
+
+    if (logChannel?.isTextBased()) {
+      const texto = message.content?.trim() || '(mensagem sem texto)';
+      const anexos = [...message.attachments.values()]
+        .map(arquivo => `[Anexo: ${arquivo.name || 'arquivo'}] ${arquivo.url}`)
+        .join('\n');
+      const trecho = `💬 **Mensagem em ticket** | ${message.channel}\n**Autor:** ${message.author.tag} (${message.author.id})\n**Mensagem:** ${texto}${anexos ? `\n${anexos}` : ''}`;
+
+      await logChannel.send({
+        content: trecho.slice(0, 1900),
+        allowedMentions: { parse: [] }
+      }).catch(erro => console.error('Erro ao registrar mensagem do ticket:', erro));
+    }
+  } catch (erro) {
+    console.error('Erro no registro de mensagem do ticket:', erro);
+  }
+}
 
 const config =
 await getConfigXP();
