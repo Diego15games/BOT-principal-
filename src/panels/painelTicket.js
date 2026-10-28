@@ -16,7 +16,7 @@ new ButtonBuilder().setCustomId("ticket_canal").setLabel("Canal do Painel").setE
 new ButtonBuilder().setCustomId("ticket_categoria").setLabel("Categoria dos Tickets").setEmoji("📂").setStyle(ButtonStyle.Secondary)
 );
 const row2 = new ActionRowBuilder().addComponents(
-new ButtonBuilder().setCustomId("ticket_staff").setLabel("Cargo Staff").setEmoji("👮").setStyle(ButtonStyle.Success),
+new ButtonBuilder().setCustomId("ticket_staff").setLabel("Cargos Staff").setEmoji("👮").setStyle(ButtonStyle.Success),
 new ButtonBuilder().setCustomId("ticket_logs").setLabel("Canal Logs").setEmoji("📜").setStyle(ButtonStyle.Secondary)
 );
 const row3 = new ActionRowBuilder().addComponents(
