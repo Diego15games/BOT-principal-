@@ -496,8 +496,20 @@ export default {
           });
         }
 
-        // ABRIR TICKET: MOSTRAR FORMULÁRIO
+        // ABRIR TICKET: só funciona no canal definido na configuração.
         if (id === 'ticket_abrir') {
+          const configTicket = await pegarConfigTickets(interaction.guildId);
+
+          if (
+            !configTicket?.panelChannelId ||
+            interaction.channelId !== configTicket.panelChannelId
+          ) {
+            return interaction.reply({
+              content: '❌ Este painel não está no canal configurado para abrir tickets.',
+              ...privateReply
+            });
+          }
+
           return interaction.showModal(
             new ModalBuilder()
               .setCustomId('ticket_criar_modal')
@@ -514,7 +526,8 @@ export default {
                 new ActionRowBuilder().addComponents(
                   new TextInputBuilder()
                     .setCustomId('problema')
-                    .setLabel('Tipo de problema')
+                    .setLabel('Tipo de atendimento')
+                    .setPlaceholder('Ex.: suporte, denúncia, bug ou dúvida')
                     .setStyle(TextInputStyle.Short)
                     .setRequired(true)
                     .setMaxLength(100)
